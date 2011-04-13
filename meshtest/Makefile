@@ -1,6 +1,8 @@
 CONTIKI = /opt/contiki
 
-all: meshtest meshtest-server
+all: meshtest meshtestsink
+# For stupid Erik
+#CONTIKI = /home/erik/skola/wcnes/contiki
 
 include $(CONTIKI)/Makefile.include
 
