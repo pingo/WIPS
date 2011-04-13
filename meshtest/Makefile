@@ -1,5 +1,6 @@
 CONTIKI = /opt/contiki
 
-all: meshtest
+all: meshtest meshtest-server
 
 include $(CONTIKI)/Makefile.include
+
