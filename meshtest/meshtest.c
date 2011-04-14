@@ -37,21 +37,28 @@ PROCESS_THREAD(meshtest_process, ev, data)
 
 	mesh_open(&mesh, 132, &callbacks);
 
-	uint8_t occupied = 0;
+	static uint8_t occupied = 0;
+    static struct etimer et;
 
 	SENSORS_ACTIVATE(button_sensor);
 
 	for (;;)
 	{
-		PROCESS_WAIT_EVENT_UNTIL(ev == sensors_event && data == &button_sensor);
+		etimer_set(&et, CLOCK_SECOND * 5);
 
-		occupied = !occupied;
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et) || (ev == sensors_event && data == &button_sensor));
+
+		if (ev == sensors_event)
+			occupied = !occupied;
+
 		printf("Room now %s\n", occupied ? "occupied" : "unoccupied");
 
 		if (occupied) leds_on(LEDS_GREEN);
 		else          leds_off(LEDS_GREEN);
 
-		rimeaddr_t addr = { { 61, 0 } };
+		leds_toggle(LEDS_BLUE);
+
+		rimeaddr_t addr = { { 70, 0 } };
 	
 		packetbuf_copyfrom(&occupied, 1);
 		mesh_send(&mesh, &addr);
