@@ -43,7 +43,6 @@ PROCESS_THREAD(meshtest_process, ev, data)
 
 	for (;;)
 	{
-
 		PROCESS_WAIT_EVENT_UNTIL(ev == sensors_event && data == &button_sensor);
 
 		occupied = !occupied;
