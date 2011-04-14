@@ -4,7 +4,7 @@ CONTIKI = /opt/contiki
 
 CFLAGS += -DPROJECT_CONF_H=1
 
-all: netfloodtest
+all: netfloodtest netfloodtestsink
 
 include $(CONTIKI)/Makefile.include
 

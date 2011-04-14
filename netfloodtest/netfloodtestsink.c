@@ -48,20 +48,12 @@ PROCESS_THREAD(netfloodtest_process, ev, data)
 	PROCESS_EXITHANDLER(netflood_close(&connection);)
 	PROCESS_BEGIN();
 
-	static uint8_t occupied = 0, seqno = 0;
-
 	netflood_open(&connection, CLOCK_SECOND * 5, 42, &callbacks);
 
 	for (;;)
 	{
-		etimer_set(&et, CLOCK_SECOND * 10);
-
 		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
-
-		occupied = !occupied;
-
-		packetbuf_copyfrom(&occupied, 1);
-		netflood_send(&connection, seqno++);
+		leds_toggle(LEDS_BLUE);
 	}
 
 	netflood_close(&connection);
