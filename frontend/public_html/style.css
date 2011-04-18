@@ -1,0 +1,6 @@
+* { font-size: small; font-family: Helvetica, FreeSans, sans-serif; }
+
+.log { border-spacing: collapse; }
+.log tr.occupied   { background: #fdd; }
+.log tr.unoccupied { background: #dfd; }
+
