@@ -21,7 +21,7 @@ static int nf_recv(struct netflood_conn *c, const rimeaddr_t *from, const rimead
 		hops,
 		*ptr ? "true" : "false");
 
-	return 0;
+	return 1;
 }
 
 static void nf_sent(struct netflood_conn *c)
@@ -50,7 +50,7 @@ PROCESS_THREAD(netfloodtest_process, ev, data)
 
 	static uint8_t occupied = 0, seqno = 0;
 
-	netflood_open(&connection, CLOCK_SECOND * 5, 42, &callbacks);
+	netflood_open(&connection, CLOCK_SECOND * 10, 42, &callbacks);
 
 	for (;;)
 	{
@@ -62,6 +62,8 @@ PROCESS_THREAD(netfloodtest_process, ev, data)
 
 		packetbuf_copyfrom(&occupied, 1);
 		netflood_send(&connection, seqno++);
+
+		leds_toggle(LEDS_GREEN);
 	}
 
 	netflood_close(&connection);

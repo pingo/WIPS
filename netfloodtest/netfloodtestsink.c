@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 
-PROCESS(netfloodtest_process, "netfloodtest");
-AUTOSTART_PROCESSES(&netfloodtest_process);
+PROCESS(netfloodtestsink_process, "netfloodtestsink");
+AUTOSTART_PROCESSES(&netfloodtestsink_process);
 
 static int nf_recv(struct netflood_conn *c, const rimeaddr_t *from, const rimeaddr_t *originator, uint8_t seqno, uint8_t hops)
 {
@@ -43,15 +43,17 @@ static struct netflood_callbacks callbacks =
 		.dropped = &nf_dropped,
 	};
 
-PROCESS_THREAD(netfloodtest_process, ev, data)
+PROCESS_THREAD(netfloodtestsink_process, ev, data)
 {
 	PROCESS_EXITHANDLER(netflood_close(&connection);)
 	PROCESS_BEGIN();
 
-	netflood_open(&connection, CLOCK_SECOND * 5, 42, &callbacks);
+	netflood_open(&connection, CLOCK_SECOND * 10, 42, &callbacks);
 
 	for (;;)
 	{
+		etimer_set(&et, CLOCK_SECOND * 10);
+
 		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
 		leds_toggle(LEDS_BLUE);
 	}
