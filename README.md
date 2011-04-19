@@ -29,7 +29,7 @@ Communication is done with the
 WIPS uses the [Contiki](http://www.sics.se/contiki/) operating system
 as the underlying operating system and its communication stack
 Rime. Apart from Contiki, the following software components is used in
-the WIPS project and available in this repository:
+the WIPS project and are available in this repository:
 
 `backend` contains a simple Python 2 program that reads data on a
 serial port from the sink node and enters events into a Sqlite
@@ -49,6 +49,9 @@ Rime.
 
 `node` contains the actual node software that polls sensors and handle
 radio communication.
+
+`sink` contains the actual sink software that communicates with the
+sensor nodes and the base station PC.
 
 `test-phidgets` contains test programs for sampling data from two
 phidgets: the IR sensor and the light sensor.
