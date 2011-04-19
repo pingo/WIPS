@@ -14,15 +14,19 @@ Tellstick and a wireless relay.
 ## Hardware
 
 The hardware platform consists of five [Zolertia
-Z1s](http://www.zolertia.com/products/Z1). One acts as a central sink
+Z1](http://www.zolertia.com/products/Z1)s. One acts as a central sink
 connected to a PC via USB, the other four nodes acts as sensor nodes
-using either a light sensor - the
-[1127](http://www.phidgets.com/products.php?category=1&product_id=1127)
-or a motion sensor - the
-[1111](http://www.phidgets.com/products.php?category=1&product_id=1111).
-Communication is done with the
+using either a light sensor (the
+[1127](http://www.phidgets.com/products.php?category=1&product_id=1127))
+or a motion sensor (the
+[1111](http://www.phidgets.com/products.php?category=1&product_id=1111)).
+Communication is performed using the
 [CC2420](http://focus.ti.com/docs/prod/folders/print/cc2420.html) IEEE
 802.15.4 radio present on the Z1.
+
+For light control, a Tellstick from [Telldus](http://www.telldus.se/)
+is used in conjunction with a
+[LYCR-300](http://www.nexa.se/LYCR300WDimmerextra.htm) wireless relay.
 
 ## Software components
 
