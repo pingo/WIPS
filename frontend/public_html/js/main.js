@@ -12,6 +12,8 @@ function updateDetails(xhr, status)
 
 		case 'success':
 			$('#main').empty().append($(xhr.responseText));
+
+			
 			break;
 
 		default:
@@ -19,7 +21,7 @@ function updateDetails(xhr, status)
 	}
 }
 
-$(document).ready(function()
+function refresh()
 {
 	$.ajax({
 		type     : 'GET',
@@ -28,5 +30,12 @@ $(document).ready(function()
 		timeout  : 20000,
 		data     : { mote : moteAddress }
 	});
+
+//	setTimeout(refresh, 5000);
+}
+
+$(document).ready(function()
+{
+	refresh();
 });
 
