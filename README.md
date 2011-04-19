@@ -1,4 +1,4 @@
-# WIPS - Wireless Indoor Presence Sensing.
+# WIPS - Wireless Indoor Presence Sensing
 
 WIPS means "Wireless Indoor Presence Sensing" and is a small project
 performed within the course "Wireless Communication and Networked
@@ -6,10 +6,10 @@ embedded systems" at Uppsala University, Sweden during spring 2011.
 
 The general idea is to create a simple system that reacts to movement
 (or presence) and transmits presence information to a central sink
-node that talks to a regular PC which in turn hosts a web server that
-publish the information. The central server can also control various
-parts of the environment such as turning lights on and off using a
-Tellstick and a wireless relay.
+node. The sink communicates with a regular PC which in turn hosts a
+web server that publish presence information. The central server can
+also control various parts of the environment such as turning lights
+on and off using a Tellstick and wireless relays.
 
 ## Hardware
 
@@ -42,8 +42,8 @@ database.
 `burn-nodeid` contains the burn-nodeid program from the Contiki suite
 for setting node IDs on our Zolertia Z1s.
 
-`frontend` contains a simple PHP frontend with an example lighttpd
-config.
+`frontend` contains a PHP frontend for the database. An example
+lighttpd config is provided.
 
 `meshtest` contains test programs for evaluating mesh networking with
 Rime.
