@@ -16,6 +16,9 @@
 
 /* #undef  DEBUG
    #define DEBUG 1 */
+   
+/* #undef  ENERGEST_CONF_ON
+   #define ENERGEST_CONF_ON 1 */
 
 #endif /* __PROJECT_CONF_H */
 

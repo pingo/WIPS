@@ -4,6 +4,7 @@
 #include "dev/z1-phidgets.h"
 #include "net/rime.h"
 #include "net/rime/netflood.h"
+#include "lib/print-stats.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -45,14 +46,12 @@ static struct netflood_callbacks callbacks =
 		.dropped = &nf_dropped,
 	};
 
-
 #define SAMPLES 10
 #define DELTA 1000
 
 PROCESS_THREAD(node_process, ev, data)
 {
 	static struct etimer et;
-	static struct timer timeout_timer;
 	static struct timer event_timer;
 
 	static int values[SAMPLES]; /* Buffer of SAMPLES latest values. */
@@ -69,9 +68,7 @@ PROCESS_THREAD(node_process, ev, data)
 	
 	netflood_open(&connection, CLOCK_SECOND * 10, 42, &callbacks);
 
-	timer_set(&event_timer, CLOCK_SECOND * 3);
-	timer_set(&timeout_timer, CLOCK_SECOND * 60);
-			
+	timer_set(&event_timer, CLOCK_SECOND * 5);
 
 	for (;;)
 	{
@@ -105,27 +102,20 @@ PROCESS_THREAD(node_process, ev, data)
 			event = 0;
 		}
 		
-		printf("v: %4d, avg: %4ld event: %i\n", v, avg, event);
-				
+		printf("v: %4d, avg: %4ld event:  %i\n", v, avg, event);
+		
+		/* Send event if presence is sensed, 
+		   toggle the green led and print some stats */
+		
 		if (event && timer_expired(&event_timer)) {
-			timer_set(&event_timer, CLOCK_SECOND * 3);
-			timer_set(&timeout_timer, CLOCK_SECOND * 60);
-			printf("room occupied event sent\n");
+			timer_set(&event_timer, CLOCK_SECOND * 5);
 			packetbuf_copyfrom(&event, 1);
 			netflood_send(&connection, seqno++);
 			leds_toggle(LEDS_GREEN);
-			leds_off(LEDS_BLUE);
-		}
-		
-		if (timer_expired(&timeout_timer)) {
-			timer_set(&timeout_timer, CLOCK_SECOND * 60);
-			printf("timeout -> room is : %i\n", event);
-			packetbuf_copyfrom(&event, 1);
-			netflood_send(&connection, seqno++);
-			leds_toggle(LEDS_BLUE);
+			print_stats();
 		}
 	}
-
+	
 	PROCESS_END();
-}
 
+}
