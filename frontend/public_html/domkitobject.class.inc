@@ -15,7 +15,7 @@ class DOMKitObject
 		$this->document->formatOutput		= FALSE;
 		$this->document->recover			= FALSE;
 		$this->document->preserveWhitespace = FALSE;
-		$this->document->validateOnParse	= TRUE; # Turn this off for production.
+		$this->document->validateOnParse	= FALSE; # Turn this off for production.
 
 		$result = $this->document->load($path,
 			LIBXML_DTDLOAD | # Load the DTD.
@@ -94,7 +94,10 @@ class DOMKitObject
 		assert('isset($ip)'); # Insertion point must exist.
 		unset($this->ips[$ipId]);
 
-		$ip->parentNode->replaceChild(self::parse($array), $ip);
+		foreach ($array as $item)
+			$ip->parentNode->insertBefore(self::parse($item), $ip);
+
+		$ip->parentNode->removeChild($ip);
 	}
 
 	public function insertText($ipId, $string)

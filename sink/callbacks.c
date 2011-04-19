@@ -19,7 +19,7 @@ int nf_recv(struct netflood_conn *c, const rimeaddr_t *from, const rimeaddr_t *o
 		seqno,             /* Packet sequence number. */
 		hops);             /* Hops the packet took, 1 for direct transmission. */
 
-	return 0;
+	return 0; /* 0 = Do not resend. */
 }
 
 void nf_sent(struct netflood_conn *c)

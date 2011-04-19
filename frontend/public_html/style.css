@@ -1,6 +1,101 @@
-* { font-size: small; font-family: Helvetica, FreeSans, sans-serif; }
+* { font-family: Helvetica, FreeSans, sans-serif; }
 
-.log { border-spacing: collapse; }
-.log tr.occupied   { background: #fdd; }
-.log tr.unoccupied { background: #dfd; }
+html, body, #container
+{
+	margin: 0;
+	height: 100%;
+	font-size: small;
+}
+
+h1
+{
+	margin-bottom: 0.25em;
+}
+
+#side
+{
+	width: 18em;
+	background: #eee;
+	padding-left: 1em;
+	overflow-y: auto;
+	min-height: 100%;
+	float: left;
+}
+
+#status
+{
+	float: left;
+	padding: 0.25em;
+	padding-right: 0.5em;
+}
+
+#main
+{
+	margin-left: 19em;
+	padding: 1em;
+}
+
+.time
+{
+	color: #555;
+	padding-right: 1em;
+}
+
+.room
+{
+	padding: 0.25em 2.0em;
+}
+
+.occupied   { background: url('images/occupied.png') left center no-repeat; }
+.unoccupied { background: url('images/unoccupied.png') left center no-repeat; }
+
+.name
+{
+	font-size: 14pt;
+	font-weight: bold;
+}
+
+.unnamed
+{
+	font-style: italic;
+	color: gray;
+}
+
+.current
+{
+	background-color: white;
+}
+
+dl
+{
+	display: block;
+/*	float: left; */
+	margin: 1em 0;
+	padding: 0;
+	overflow: auto;
+}
+
+dt
+{
+
+	clear: left;
+	float: left;
+	width: 11em;
+	font-weight: bold;
+}
+
+dd
+{
+	float: left;
+	margin: 0;
+	padding: 0;
+}
+
+#events
+{
+	border: 1px solid #aaa;
+	background: #eee;
+	height: 20em;
+	overflow-y: auto;
+}
 

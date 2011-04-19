@@ -6,16 +6,15 @@
 		<link rel="icon" type="image/png" href="/images/icon.png" />
 		<script type="text/javascript" src="/js/jquery.js"></script>
 		<script type="text/javascript" src="/js/main.js"></script>
+		<script type="text/javascript"><?domkit js ?></script>
 		<?domkit head ?>
 	</head>
 	<body>
 		<div id="container">
-			<h1 id="title"><?domkit title ?></h1>
-
-			<div id="main">
-				<p><?domkit chart ?></p>
-				<p><?domkit body ?></p>
+			<div id="side">
+				<?domkit side ?>
 			</div>
+			<div id="main" />
 		</div>
 	</body>
 </html>

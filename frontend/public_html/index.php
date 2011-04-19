@@ -7,58 +7,40 @@ spl_autoload_register();
 
 $main = new DOMKitObject('main.xml');
 
-$main->insertText('title', 'Room status');
-
 $db = new PDO('sqlite:../../backend/backend.db');
 
-$result = $db->query('SELECT * FROM `event` ORDER BY `time` DESC');
+$result = $db->query('SELECT DISTINCT * FROM (SELECT `mote_major`, `mote_minor`, `mote_major` || \'.\' || `mote_minor` AS `address`, `value` FROM `event` ORDER BY `time`) INNER JOIN `mote` ON `mote_major` = `major` AND `mote_minor` = `minor` GROUP BY `address`');
 
-$last_value = 0;
+$main->insertText('js', 'var moteAddress = "' . $_GET['mote'] . '";');
+
+if ($result === FALSE)
+	die(var_export($db->errorInfo(), TRUE));
 
 foreach ($result as $row)
 {
-	$html_rows[] =
+	$named = !empty($row['name']);
+	$name  = $named ? $row['name'] : 'Unnamed room';
+
+	$html_rooms[] =
 		array
 		(
-			'tr',
-			'class' => $row['value'] == '1' ? 'occupied' : 'unoccupied',
+			'div',
+			'class' => 'room' .
+				($row['value'] ? ' occupied' : ' unoccupied') .
+				($row['address'] == $_GET['mote'] ? ' current' : ''),
 
-			array('td', time_ago($row['time']), 'title' => date('Y-m-d H:m:s', $row['time'])),
-			array('td', 'Rum ' . $row['mote_major'] .  '.' . $row['mote_minor'] . ' blev ' . ($row['value'] == '1' ? 'upptaget' : 'ledigt')),
+			array('a',
+				'href' => '/?' . http_build_query(array('mote' => $row['address'])),
+				array('div', 'class' => 'name' . (!$named ? ' unnamed' : ''), $name),
+			),
+			array('div', 'class' => 'address', 'Mote ' . $row['address']),
 		);
-
-	if (isset($last))
-	{
-		if ($last_value == '1')
-			$total_occupied += ((int)$row['time'] - $last);
-
-		$total_time += ((int)$row['time'] - $last);
-	}
-
-	$last_value = $row['value'];
-	$last = $row['time'];
 }
 
-if ($last_value == '1')
-{
-	$total_occupied += (time() - $last);
-	$free = TRUE;
-}
+$result->closeCursor();
 
-$val = (double)$total_occupied / (double)$total_time;
-$uri = 'http://chart.apis.google.com/chart?' .
-	http_build_query(array
-		(
-			'chs'  => '300x225',
-			'cht'  => 'p3',
-			'chd'  => 's:FU',
-			'chdl' => 'Ledigt|Upptaget',
-			'chp'  => $val,
-			'chtt' => 'Rum ' . $row['mote_major'] . '.' . $row['mote_minor'],
-		));
-
-$main->insert('chart', array('img', 'src' => $uri));
-$main->insert('body', array('table', 'class' => 'log') + $html_rows);
+if (isset($html_rooms))
+	$main->insert('side', $html_rooms);
 
 header('Content-Type: text/html; charset=UTF-8');
 header('Content-Language: en');
