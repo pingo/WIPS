@@ -11,24 +11,24 @@ int nf_recv(struct netflood_conn *c, const rimeaddr_t *from, const rimeaddr_t *o
 	char *ptr = packetbuf_dataptr();
 
 	printf("%d.%d %d %d.%d %d %d\r\n",
-		originator->u8[0],
+		originator->u8[0], /* Originating node address. */
 		originator->u8[1],
-		*ptr ? 1 : 0,
-		from->u8[0],
+		*ptr ? 1 : 0,      /* 1 = Occupied, 0 = Unoccupied. */
+		from->u8[0],       /* Relaying node's address. */
 		from->u8[1],
-		seqno,
-		hops);
+		seqno,             /* Packet sequence number. */
+		hops);             /* Hops the packet took, 1 for direct transmission. */
 
 	return 0;
 }
 
 void nf_sent(struct netflood_conn *c)
 {
-	printf("packet sent\r\n");
+	/* Never reached. */
 }
 
 void nf_dropped(struct netflood_conn *c)
 {
-	printf("packet dropped\r\n");
+	/* Never reached. */
 }
 
