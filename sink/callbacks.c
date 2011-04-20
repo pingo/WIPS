@@ -11,7 +11,7 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 {
 	char *ptr = packetbuf_dataptr();
 
-	printf("%d.%d %d %d %d\r\n",
+	printf("%d.%d %d %d\r\n",
 		from->u8[0],  /* Originating node address. */
 		from->u8[1],
 		*ptr ? 1 : 0, /* 1 = Occupied, 0 = Unoccupied. */

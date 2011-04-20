@@ -9,7 +9,7 @@ $main = new DOMKitObject('main.xml');
 
 $db = new PDO('sqlite:../../backend/backend.db');
 
-$result = $db->query('SELECT DISTINCT * FROM (SELECT `mote_major`, `mote_minor`, `mote_major` || \'.\' || `mote_minor` AS `address`, `value` FROM `event` ORDER BY `time`) INNER JOIN `mote` ON `mote_major` = `major` AND `mote_minor` = `minor` GROUP BY `address`');
+$result = $db->query('SELECT DISTINCT * FROM (SELECT `major`, `minor`, `major` || \'.\' || `minor` AS `address`, `value` FROM `event` ORDER BY `time`) INNER JOIN `mote` USING (`major`, `minor`) GROUP BY `address`');
 
 $main->insertText('js', 'var moteAddress = "' . $_GET['mote'] . '";');
 

@@ -9,14 +9,12 @@ CREATE TABLE `mote`
 
 CREATE TABLE `event`
 (
-	`mote_major`  INTEGER, -- Origin mote major ID
-	`mote_minor`  INTEGER, -- Origin mote minor ID
-	`relay_major` INTEGER, -- Last relay mote major ID
-	`relay_minor` INTEGER, -- Last relay mote minor ID
-	`time`  INTEGER,       -- Time of event
-	`value` INTEGER,       -- Event data
+	`major` INTEGER, -- Origin mote major ID
+	`minor` INTEGER, -- Origin mote minor ID
+	`time`  INTEGER, -- Time of event
+	`hops`  INTEGER, -- Number of hops to the sink
+	`value` INTEGER, -- Event data
 
-	FOREIGN KEY (`mote_major`, `mote_minor`) REFERENCES `mote`(`major`, `minor`),
-	FOREIGN KEY (`relay_major`, `relay_minor`) REFERENCES `mote`(`major`, `minor`)
+	FOREIGN KEY (`major`, `minor`) REFERENCES `mote`(`major`, `minor`)
 );
 
