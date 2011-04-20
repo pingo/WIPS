@@ -6,45 +6,13 @@
 #include "net/rime/netflood.h"
 #include "lib/print-stats.h"
 
+#include "callbacks.h"
+
 #include <stdio.h>
 #include <math.h>
 
-PROCESS(node_process, "node");
+PROCESS(node_process, "Node");
 AUTOSTART_PROCESSES(&node_process);
-
-static int nf_recv(struct netflood_conn *c, const rimeaddr_t *from, const rimeaddr_t *originator, uint8_t seqno, uint8_t hops)
-{
-	char *ptr = packetbuf_dataptr();
-
-	printf("packet from %d.%d originating from %d.%d (seqno %d, %d hops): %s\r\n",
-		from->u8[0],
-		from->u8[1],
-		originator->u8[0],
-		originator->u8[1],
-		seqno,
-		hops,
-		*ptr ? "true" : "false");
-
-	return 1;
-}
-
-static void nf_sent(struct netflood_conn *c)
-{
-	printf("packet sent\r\n");
-}
-
-static void nf_dropped(struct netflood_conn *c)
-{
-	printf("packet dropped\r\n");
-}
-
-static struct netflood_conn connection;
-static struct netflood_callbacks callbacks = 
-	{
-		.recv    = &nf_recv,
-		.sent    = &nf_sent,
-		.dropped = &nf_dropped,
-	};
 
 #define SAMPLES 10
 #define DELTA 1000
@@ -62,11 +30,11 @@ PROCESS_THREAD(node_process, ev, data)
 
 	//memset(values, 0, SAMPLES*sizeof(int));
 
-	PROCESS_EXITHANDLER(netflood_close(&connection);)
+	PROCESS_EXITHANDLER(mesh_close(&mesh);)
 	PROCESS_BEGIN();
 	SENSORS_ACTIVATE(phidgets);
 	
-	netflood_open(&connection, CLOCK_SECOND * 10, 42, &callbacks);
+	mesh_open(&mesh, 132, &callbacks);
 
 	timer_set(&event_timer, CLOCK_SECOND * 5);
 

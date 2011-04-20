@@ -5,6 +5,8 @@ CONTIKI = /opt/contiki
 CONTIKI_SOURCEFILES += callbacks.c
 APPS = 
 
+CFLAGS += -DPROJECT_CONF_H=1
+
 all: $(CONTIKI_PROJECT)
 
 upload: $(CONTIKI_PROJECT).upload

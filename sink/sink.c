@@ -1,6 +1,6 @@
 #include "contiki.h"
 #include "net/rime.h"
-#include "net/rime/netflood.h"
+#include "net/rime/mesh.h"
 #include "dev/leds.h"
 
 #include "callbacks.h"
@@ -10,20 +10,20 @@
 PROCESS(sink_process, "Sink");
 AUTOSTART_PROCESSES(&sink_process);
 
-static struct netflood_conn connection;
-static struct netflood_callbacks callbacks = 
+static struct mesh_conn mesh;
+const static struct mesh_callbacks callbacks =
 	{
-		.recv    = &nf_recv,
-		.sent    = &nf_sent,
-		.dropped = &nf_dropped,
+		.recv    = &cb_recv,
+		.sent    = &cb_sent,
+		.timeout = &cb_timedout,
 	};
 
 PROCESS_THREAD(sink_process, ev, data)
 {
-	PROCESS_EXITHANDLER(netflood_close(&connection);)
+	PROCESS_EXITHANDLER(mesh_close(&mesh);)
 	PROCESS_BEGIN();
 
-	netflood_open(&connection, CLOCK_SECOND * 10, 42, &callbacks);
+	mesh_open(&mesh, 132, &callbacks);
 
 	for (;;)
 	{

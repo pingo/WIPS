@@ -44,17 +44,17 @@ PROCESS_THREAD(meshtestsink_process, ev, data)
 
 	for (;;)
 	{
-		PROCESS_WAIT_EVENT_UNTIL(ev == sensors_event && data == &button_sensor);
+		PROCESS_WAIT_EVENT(); /* _UNTIL(ev == sensors_event && data == &button_sensor); */
 
-		leds_toggle(LEDS_GREEN);
-		printf("Click.\n");
+/*		leds_toggle(LEDS_GREEN);
+		printf("Click.\n"); */
 
-		rimeaddr_t addr;
+/*		rimeaddr_t addr;
 
 		packetbuf_copyfrom("Hej", 3);
 		addr.u8[0] = 74;
 		addr.u8[1] = 0;
-		mesh_send(&mesh, &addr);
+		mesh_send(&mesh, &addr); */
 	}
 
 	PROCESS_END();
