@@ -13,9 +13,9 @@ AUTOSTART_PROCESSES(&sink_process);
 static struct mesh_conn mesh;
 const static struct mesh_callbacks callbacks =
 	{
-		.recv    = &cb_recv,
-		.sent    = &cb_sent,
-		.timeout = &cb_timedout,
+		.recv     = &cb_recv,
+		.sent     = &cb_sent,
+		.timedout = &cb_timedout,
 	};
 
 PROCESS_THREAD(sink_process, ev, data)
