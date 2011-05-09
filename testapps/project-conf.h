@@ -21,4 +21,3 @@
    #define DEBUG 1 */
 
 #endif /* __PROJECT_CONF_H */
-
