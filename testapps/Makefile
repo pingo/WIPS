@@ -1,7 +1,8 @@
 CONTIKI = /opt/contiki
 #CONTIKI = /home/erik/skola/wcnes/contiki
 
-all: meshtest meshtestsink netfloodtest netfloodtestsink phidgetstest rssitest
+CONTIKI_SOURCEFILES += callbacks.c
+all: meshtest meshtestsink netfloodtest netfloodtestsink phidgetstest
 
 CFLAGS += -DPROJECT_CONF_H=1
 
