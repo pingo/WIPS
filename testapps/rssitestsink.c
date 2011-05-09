@@ -51,18 +51,21 @@ PROCESS_THREAD(meshtest_process, ev, data)
 
 		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et) || (ev == sensors_event && data == &button_sensor));
 
+/*
 		if (ev == sensors_event)
 			occupied = !occupied;
 
 		if (occupied) leds_on(LEDS_GREEN);
 		else          leds_off(LEDS_GREEN);
+ */
 
 		leds_toggle(LEDS_BLUE);
-
+/*
 		rimeaddr_t addr = { { 70, 0 } };
 	
 		packetbuf_copyfrom(&occupied, 1);
 		mesh_send(&mesh, &addr);
+ */
 	}
 
 	PROCESS_END();
