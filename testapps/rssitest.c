@@ -38,10 +38,10 @@ PROCESS_THREAD(node_process, ev, data)
 
 	mesh_open(&mesh, 132, &callbacks);
 	
+	etimer_set(&et, CLOCK_SECOND * 15);
+
 	for (;;)
 	{
-		etimer_set(&et, CLOCK_SECOND * 15);
-
 		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et) || ev == sensors_event);
 				
 		if (ev == sensors_event)
@@ -53,6 +53,8 @@ PROCESS_THREAD(node_process, ev, data)
 
 			for (e = list_head(route_table_get()); e != NULL; e = list_item_next(e))
 			{
+				etimer_set(&et, CLOCK_SECOND * 15);
+
 					printf("%d.%d\t"
 						   "%d.%d\t"
 						   "%hhu\t"
