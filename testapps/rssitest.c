@@ -25,7 +25,7 @@ const static struct mesh_callbacks callbacks =
 PROCESS_THREAD(node_process, ev, data)
 {
 	static struct etimer et;
-	static struct timer period_timer; /* Periodic threshhold for event sensing. */
+	static struct timer period_timer; /* Periodic timer for network protocol */
 	
 	static uint16_t seqno = 0;
 	
@@ -34,7 +34,7 @@ PROCESS_THREAD(node_process, ev, data)
 	
 	mesh_open(&mesh, 132, &callbacks);
 	
-	timer_set(&period_timer, CLOCK_SECOND * 10);
+	timer_set(&period_timer, CLOCK_SECOND * 15);
 	
 	for (;;)
 	{
@@ -44,7 +44,7 @@ PROCESS_THREAD(node_process, ev, data)
 		rimeaddr_t addr = { { 70, 0 } };
 		
 		if (timer_expired(&period_timer)) {
-			timer_set(&period_timer, CLOCK_SECOND * 5);
+			timer_set(&period_timer, CLOCK_SECOND * 15);
 
 			printf("%d.%d  %i\n", rimeaddr_node_addr.u8[0], rimeaddr_node_addr.u8[1], seqno);
 			
