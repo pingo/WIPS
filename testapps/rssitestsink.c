@@ -6,9 +6,9 @@
 #include "dev/leds.h"
 #include "net/rime/route.h"
 
-list_t route_table_get(void);
-
 #include <stdio.h>
+
+list_t route_table_get(void); /* FIXME: Put in header. */
 
 static struct mesh_conn mesh;
 
@@ -29,9 +29,17 @@ static void recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 {
 	uint16_t *buf = packetbuf_dataptr();
 
-	/* cc2420_rssi() */
+	if (packetbuf_datalen() != sizeof(uint16_t) * 2)
+		return;
 
-	printf("%d.%d %d %d %u\n", from->u8[0], from->u8[1], hops, packetbuf_attr(PACKETBUF_ATTR_RSSI), *buf);
+	printf("%d.%d %2u %4d %3u %3u\n",
+		from->u8[0], from->u8[1],
+		hops,
+		packetbuf_attr(PACKETBUF_ATTR_RSSI),
+		buf[0], buf[1]);
+
+	packetbuf_copyfrom(buf, sizeof(uint16_t));
+	mesh_send(&mesh, from);
 }
 
 const static struct mesh_callbacks callbacks = {recv, sent, timedout};
@@ -56,18 +64,18 @@ PROCESS_THREAD(meshtest_process, ev, data)
 
 		for (e = list_head(route_table_get()); e != NULL; e = list_item_next(e))
 		{
-				printf("%d.%d\t"
-				       "%d.%d\t"
-				       "%hhu\t"
-				       "%hhu\t"
-				       "%hhu\t"
-				       "%hhu\n",
-				       e->dest.u8[0], e->dest.u8[1],
-				       e->nexthop.u8[0], e->nexthop.u8[1],
-				       e->cost,
-				       e->time,
-				       e->decay,
-				       e->time_last_decay);
+			printf("%d.%d\t"
+			       "%d.%d\t"
+			       "%hhu\t"
+			       "%hhu\t"
+			       "%hhu\t"
+			       "%hhu\n",
+			       e->dest.u8[0], e->dest.u8[1],
+			       e->nexthop.u8[0], e->nexthop.u8[1],
+			       e->cost,
+			       e->time,
+			       e->decay,
+			       e->time_last_decay);
 		}
 
 		printf("END ROUTING TABLE\n\n");

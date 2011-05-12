@@ -79,7 +79,7 @@ static struct ctimer t;
 
 static int max_time = DEFAULT_LIFETIME;
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)

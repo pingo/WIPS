@@ -51,7 +51,7 @@ static const struct packetbuf_attrlist attributes[] =
     BROADCAST_ATTRIBUTES PACKETBUF_ATTR_LAST
   };
 
-#define DEBUG 1
+#define DEBUG 0
 
 #if DEBUG
 #include <stdio.h>
