@@ -66,7 +66,7 @@
 #ifdef ROUTE_CONF_DEFAULT_LIFETIME
 #define DEFAULT_LIFETIME ROUTE_CONF_DEFAULT_LIFETIME
 #else /* ROUTE_CONF_DEFAULT_LIFETIME */
-#define DEFAULT_LIFETIME 60
+#define DEFAULT_LIFETIME 10
 #endif /* ROUTE_CONF_DEFAULT_LIFETIME */
 
 /*
@@ -79,7 +79,7 @@ static struct ctimer t;
 
 static int max_time = DEFAULT_LIFETIME;
 
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
