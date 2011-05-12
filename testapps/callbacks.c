@@ -5,7 +5,7 @@
 
 #include "callbacks.h"
 
-extern uint16_t seqno;
+extern uint16_t seqno[2];
 
 static int alert = 0;
 
@@ -13,15 +13,16 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 {
 	char *ptr = packetbuf_dataptr();
 
-	printf("%d.%d %d %d\r\n",
+	printf("r %d.%d %2u %4d %3u\n",
 		from->u8[0],  /* Originating node address. */
 		from->u8[1],
-		*ptr,         /* Data payload */
-		hops);        /* Hops the packet took, 1 for direct transmission. */
+		hops,         /* Hops the packet took, 1 for direct transmission. */
+		packetbuf_attr(PACKETBUF_ATTR_RSSI),
+		*ptr);        /* Data payload */
 	
-	
-	if (seqno >= *ptr) {
-		seqno++;
+	if (seqno[0] >= *ptr) {
+		seqno[0]++;
+		seqno[1] = 0;
 	}
 	
 	return 0; /* 0 = Do not resend. */

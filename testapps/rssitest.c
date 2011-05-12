@@ -17,7 +17,7 @@ list_t route_table_get(void);
 PROCESS(node_process, "node");
 AUTOSTART_PROCESSES(&node_process);
 
-uint16_t seqno = 0;
+uint16_t seqno[2] = {0,0};
 
 static struct mesh_conn mesh;
 const static struct mesh_callbacks callbacks =
@@ -75,10 +75,13 @@ PROCESS_THREAD(node_process, ev, data)
 			
 			rimeaddr_t addr = { { 70, 0 } };
 
-			printf("sending: %d.%d  %i\n", rimeaddr_node_addr.u8[0], 														   rimeaddr_node_addr.u8[1], 
-										   seqno);
+			printf("t %d.%d %i %i\n", 
+					addr.u8[0], addr.u8[1], seqno[0], seqno[1]);
 			
-			packetbuf_copyfrom(&seqno, sizeof(uint16_t));
+			packetbuf_copyfrom(seqno, sizeof(uint16_t) * 2);
+			
+			seqno[1]++;
+			
 			mesh_send(&mesh, &addr);
 		}
 	}
