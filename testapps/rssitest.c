@@ -39,7 +39,7 @@ PROCESS_THREAD(node_process, ev, data)
 	for (;;)
 	{
 		etimer_set(&et, CLOCK_SECOND / 2);
-		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));			
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
 				
 		rimeaddr_t addr = { { 70, 0 } };
 		
