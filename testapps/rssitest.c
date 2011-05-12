@@ -17,6 +17,8 @@ list_t route_table_get(void);
 PROCESS(node_process, "node");
 AUTOSTART_PROCESSES(&node_process);
 
+uint16_t seqno = 0;
+
 static struct mesh_conn mesh;
 const static struct mesh_callbacks callbacks =
 	{
@@ -28,8 +30,6 @@ const static struct mesh_callbacks callbacks =
 PROCESS_THREAD(node_process, ev, data)
 {
 	static struct etimer et;
-	
-	static uint16_t seqno = 0;
 	
 	PROCESS_EXITHANDLER(mesh_close(&mesh));
 	PROCESS_BEGIN();
@@ -53,8 +53,6 @@ PROCESS_THREAD(node_process, ev, data)
 
 			for (e = list_head(route_table_get()); e != NULL; e = list_item_next(e))
 			{
-				etimer_set(&et, CLOCK_SECOND * 15);
-
 					printf("%d.%d\t"
 						   "%d.%d\t"
 						   "%hhu\t"
@@ -73,14 +71,15 @@ PROCESS_THREAD(node_process, ev, data)
 		}
 		else
 		{
+			etimer_set(&et, CLOCK_SECOND * 15);
+			
 			rimeaddr_t addr = { { 70, 0 } };
 
-			printf("%d.%d  %i\n", rimeaddr_node_addr.u8[0], rimeaddr_node_addr.u8[1], seqno);
-		
+			printf("sending: %d.%d  %i\n", rimeaddr_node_addr.u8[0], 														   rimeaddr_node_addr.u8[1], 
+										   seqno);
+			
 			packetbuf_copyfrom(&seqno, sizeof(uint16_t));
 			mesh_send(&mesh, &addr);
-
-			seqno++;
 		}
 	}
 	PROCESS_END();

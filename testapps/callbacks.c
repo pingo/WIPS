@@ -5,6 +5,8 @@
 
 #include "callbacks.h"
 
+extern uint16_t seqno;
+
 static int alert = 0;
 
 void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
@@ -14,8 +16,13 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 	printf("%d.%d %d %d\r\n",
 		from->u8[0],  /* Originating node address. */
 		from->u8[1],
-		*ptr ? 1 : 0, /* 1 = Occupied, 0 = Unoccupied. */
+		*ptr,         /* Data payload */
 		hops);        /* Hops the packet took, 1 for direct transmission. */
+	
+	
+	if (seqno >= *ptr) {
+		seqno++;
+	}
 	
 	return 0; /* 0 = Do not resend. */
 }
