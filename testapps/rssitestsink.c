@@ -4,6 +4,9 @@
 #include "net/mac/mac.h"
 #include "dev/button-sensor.h"
 #include "dev/leds.h"
+#include "net/rime/route.h"
+
+list_t route_table_get(void);
 
 #include <stdio.h>
 
@@ -40,32 +43,36 @@ PROCESS_THREAD(meshtest_process, ev, data)
 
 	mesh_open(&mesh, 132, &callbacks);
 
-	static uint8_t occupied = 0;
-    static struct etimer et;
-
 	SENSORS_ACTIVATE(button_sensor);
 
 	for (;;)
 	{
-		etimer_set(&et, CLOCK_SECOND * 5);
+		static struct route_entry *e;
 
-		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et) || (ev == sensors_event && data == &button_sensor));
+		PROCESS_WAIT_EVENT_UNTIL(ev == sensors_event && data == &button_sensor);
 
-/*
-		if (ev == sensors_event)
-			occupied = !occupied;
+		printf("BEGIN ROUTING TABLE\n");
+		printf("dest\tnext\tcost\ttime\tdecay\tlastdecay\n");
 
-		if (occupied) leds_on(LEDS_GREEN);
-		else          leds_off(LEDS_GREEN);
- */
+		for (e = list_head(route_table_get()); e != NULL; e = list_item_next(e))
+		{
+				printf("%d.%d\t"
+				       "%d.%d\t"
+				       "%hhu\t"
+				       "%hhu\t"
+				       "%hhu\t"
+				       "%hhu\n",
+				       e->dest.u8[0], e->dest.u8[1],
+				       e->nexthop.u8[0], e->nexthop.u8[1],
+				       e->cost,
+				       e->time,
+				       e->decay,
+				       e->time_last_decay);
+		}
+
+		printf("END ROUTING TABLE\n\n");
 
 		leds_toggle(LEDS_BLUE);
-/*
-		rimeaddr_t addr = { { 70, 0 } };
-	
-		packetbuf_copyfrom(&occupied, 1);
-		mesh_send(&mesh, &addr);
- */
 	}
 
 	PROCESS_END();

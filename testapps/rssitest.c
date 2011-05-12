@@ -5,6 +5,9 @@
 #include "net/rime.h"
 #include "net/rime/mesh.h"
 #include "lib/print-stats.h"
+#include "net/rime/route.h"
+
+list_t route_table_get(void);
 
 #include "callbacks.h"
 
@@ -25,35 +28,58 @@ const static struct mesh_callbacks callbacks =
 PROCESS_THREAD(node_process, ev, data)
 {
 	static struct etimer et;
-	static struct timer period_timer; /* Periodic timer for network protocol */
 	
 	static uint16_t seqno = 0;
 	
 	PROCESS_EXITHANDLER(mesh_close(&mesh));
 	PROCESS_BEGIN();
 	
+	SENSORS_ACTIVATE(button_sensor);
+
 	mesh_open(&mesh, 132, &callbacks);
-	
-	timer_set(&period_timer, CLOCK_SECOND * 15);
 	
 	for (;;)
 	{
-		etimer_set(&et, CLOCK_SECOND / 2);
-		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
+		etimer_set(&et, CLOCK_SECOND * 15);
+
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et) || ev == sensors_event);
 				
-		rimeaddr_t addr = { { 70, 0 } };
-		
-		if (timer_expired(&period_timer)) {
-			timer_set(&period_timer, CLOCK_SECOND * 15);
+		if (ev == sensors_event)
+		{
+			static struct route_entry *e;
+
+			printf("BEGIN ROUTING TABLE\n");
+			printf("dest\tnext\tcost\ttime\tdecay\tlastdecay\n");
+
+			for (e = list_head(route_table_get()); e != NULL; e = list_item_next(e))
+			{
+					printf("%d.%d\t"
+						   "%d.%d\t"
+						   "%hhu\t"
+						   "%hhu\t"
+						   "%hhu\t"
+						   "%hhu\n",
+						   e->dest.u8[0], e->dest.u8[1],
+						   e->nexthop.u8[0], e->nexthop.u8[1],
+						   e->cost,
+						   e->time,
+						   e->decay,
+						   e->time_last_decay);
+			}
+
+			printf("END ROUTING TABLE\n\n");
+		}
+		else
+		{
+			rimeaddr_t addr = { { 70, 0 } };
 
 			printf("%d.%d  %i\n", rimeaddr_node_addr.u8[0], rimeaddr_node_addr.u8[1], seqno);
-			
+		
 			packetbuf_copyfrom(&seqno, sizeof(uint16_t));
 			mesh_send(&mesh, &addr);
 
 			seqno++;
 		}
-		
 	}
 	PROCESS_END();
 	
