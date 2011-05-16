@@ -90,12 +90,29 @@ data_packet_forward(struct multihop_conn *multihop,
 		    const rimeaddr_t *prevhop, uint8_t hops)
 {
   struct route_entry *rt;
+  struct route_entry *rt0;
 
   rt = route_lookup(dest);
   if(rt == NULL) {
     return NULL;
   }
-  
+
+  if(!rimeaddr_cmp(originator, &rimeaddr_node_addr)) {
+		/* Prevhop seems to be NULL on first hop. */
+		if(prevhop == NULL) {
+		  prevhop = originator;
+		}
+
+		/* Find reverse route entry (to dest via prevhop). */
+		rt0 = route_find(originator, prevhop);
+
+		if(rt0 != NULL) {
+		  route_refresh(rt0);
+		}
+		else {
+		  route_add(originator, prevhop, hops, 0);
+		}
+	}
   return &rt->nexthop;
 }
 /*---------------------------------------------------------------------------*/

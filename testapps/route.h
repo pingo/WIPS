@@ -70,6 +70,7 @@ void route_init(void);
 int route_add(const rimeaddr_t *dest, const rimeaddr_t *nexthop,
 	      uint8_t cost, uint8_t seqno);
 struct route_entry *route_lookup(const rimeaddr_t *dest);
+struct route_entry *route_find(const rimeaddr_t *dest, const rimeaddr_t *next);
 void route_refresh(struct route_entry *e);
 void route_decay(struct route_entry *e);
 void route_remove(struct route_entry *e);

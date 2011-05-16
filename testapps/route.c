@@ -183,6 +183,21 @@ route_lookup(const rimeaddr_t *dest)
   }
   return best_entry;
 }
+
+struct route_entry *
+route_find(const rimeaddr_t *dest, const rimeaddr_t *next)
+{
+  struct route_entry *e;
+
+  for(e = list_head(route_table); e != NULL; e = list_item_next(e)) {
+    if(rimeaddr_cmp(dest, &e->dest) && rimeaddr_cmp(next, &e->next)) {
+      return e;
+    }
+  }
+
+  return NULL;
+}
+
 /*---------------------------------------------------------------------------*/
 void
 route_refresh(struct route_entry *e)
