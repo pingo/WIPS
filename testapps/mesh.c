@@ -110,7 +110,7 @@ data_packet_forward(struct multihop_conn *multihop,
 		  route_refresh(rt0);
 		}
 		else {
-		  route_add(originator, prevhop, hops, 0);
+		  route_add(originator, prevhop, hops - 1, 0);
 		}
 	}
   return &rt->nexthop;
