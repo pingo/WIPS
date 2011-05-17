@@ -45,17 +45,14 @@ for setting node IDs on our Zolertia Z1s.
 `frontend` contains a PHP frontend for the database. An example
 lighttpd config is provided.
 
-`meshtest` contains test programs for evaluating mesh networking with
-Rime.
-
-`netfloodtest` contains test programs for evaluating net flooding with
-Rime.
-
 `node` contains the actual node software that polls sensors and handle
 radio communication.
 
 `sink` contains the actual sink software that communicates with the
 sensor nodes and the base station PC.
 
-`test-phidgets` contains test programs for sampling data from two
-phidgets: the IR sensor and the light sensor.
+`testapps` contains test programs for sampling data from phidgets and
+testing different types of network architectures.
+
+`tools` contains some helper programs that aid development and
+debugging.
