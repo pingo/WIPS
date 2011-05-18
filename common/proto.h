@@ -2,6 +2,7 @@
 #define _PROTO_H
 
 #define P_TYPE_STATUS 0x01
+#define P_TYPE_ACK 0x02
 
 int proto_p_type(char *buf);
 

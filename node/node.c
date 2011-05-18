@@ -7,14 +7,20 @@
 #include "lib/print-stats.h"
 
 #include "callbacks.h"
+#include "proto.h"
 
 #include <stdio.h>
-#include <math.h>
+#include <stdlib.h>
 
 PROCESS(node_process, "node");
 AUTOSTART_PROCESSES(&node_process);
 
+int p_seq_flag = 0;
+int p_retries = 0;
+
 static struct mesh_conn mesh;
+static rimeaddr_t sink_addr = { { 70, 0 } };
+	
 const static struct mesh_callbacks callbacks =
 	{
 		.recv    = &cb_recv,
@@ -25,17 +31,21 @@ const static struct mesh_callbacks callbacks =
 #define SAMPLES 10
 #define DELTA 1000
 
-
-void std_packet(char *packet_buffer, int p_type, int seq_flag, int retries, int payload) {
-	packet_buffer[0] = p_type & 0x3F | (seq_flag != 0) << 6 | (retries & 0x1) << 7;
-	packet_buffer[1] = retries >> 1 | (payload != 0) <<7);
+static void send_status_packet(int payload)
+{
+	/* Create a buffer for packet */
+	char packet_buffer[2];
+				
+	/* Send packet to sink */
+	proto_status_pack(packet_buffer, p_seq_flag, p_retries, payload);
+	packetbuf_copyfrom(packet_buffer, 2);
+	mesh_send(&mesh, &sink_addr);
 }
 
 PROCESS_THREAD(node_process, ev, data)
 {
 	static struct etimer period;
-	static struct etimer event;
-	static struct etimer timeout;
+	static struct etimer presence_timeout;
 	
 	static int values[SAMPLES]; /* Buffer of SAMPLES latest values. */
 	static int sample = 0;      /* Index of current sample in buffer. */
@@ -43,7 +53,7 @@ PROCESS_THREAD(node_process, ev, data)
 	static int i, v;
 	static long avg;
 	
-	static uint8_t event = 0;
+	static int sensor_status = 0; /* 0 if not active (no one in room) */
 	
 	//memset(values, 0, SAMPLES*sizeof(uint8_t));
 	
@@ -55,18 +65,14 @@ PROCESS_THREAD(node_process, ev, data)
 	
 	/* Set timers to reduce startup conditions */
 	etimer_set(&period, CLOCK_SECOND * 15);
-	etimer_set(&event, CLOCK_SECOND * 5);
-	etimer_set(&timeout, CLOCK_SECOND * 300);
-	
-	/* Set sink node address */
-	rimeaddr_t sink_addr = { { 70, 0 } };
+	etimer_set(&presence_timeout, CLOCK_SECOND * 300);
 	
 	for (;;)
 	{
-		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et) || ev == sensors_event);
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&period) || etimer_expired(&presence_timeout) || ev == sensors_event);
 		
 		if (ev == sensors_event) {
-			printf("button pressed", );
+			printf("button pressed");
 		}
 				
 		/*
@@ -86,45 +92,36 @@ PROCESS_THREAD(node_process, ev, data)
 
 		/* See if our newest value is off by more than DELTA from the average */
 		if (abs(v - avg) > DELTA) {
-			event = 1;
+			/* Reset the presence timer */
+			etimer_set(&presence_timeout, CLOCK_SECOND * 300);
+			/* Check if we should send packet (only if nobody was
+			 * present earlier) */
+			if (!sensor_status) {
+				/* Send status packet */
+				send_status_packet(1);
+				/* Print debug */
+				printf("v: %4d, avg: %4ld sensor_activated:  %i\n", v, avg, sensor_status);
+			}
+			sensor_status = 1;
 		}
-		else {
-			event = 0;
-		}
 		
-		printf("v: %4d, avg: %4ld event:  %i\n", v, avg, event)</>;
-		
-		char packet_buffer[3];
-		memset(packet_buffer, 0, 3*size_of(char));
-				
-		/* Periodic */
-		
+		/* Send periodic status packet */
 		if (etimer_expired(&period)) {
-			etimer_set(&et, CLOCK_SECOND * 15);
-			std_packet(packet_buffer, 0, 0, 0, event);
-			packetbuf_copyfrom(&event, 2);
-			mesh_send(&mesh, &sink_addr);
+			/* Reset periodic timer */
+			etimer_set(&period, CLOCK_SECOND * 15);
+			/* Send packet */
+			send_status_packet(sensor_status);
 		}
 				
-		/* Event */	
-		
-		if (etimer_expired(&event)) {
-			etimer_set(&event_threshold, CLOCK_SECOND * 5);
-			std_packet(packet_buffer, 1, 0, 0, 1);
-			packetbuf_copyfrom(&packet_buffer, 2);
-			mesh_send(&mesh, &sink_addr);
-			
-			event = 0;
-		}
-		
-		/* Timeout */
-		
-		if (etimer_expired(&timeout)) {
-			// is the room empty, aka timeout?
-			etimer_set(&event_threshold, CLOCK_SECOND * 300);
-			std_packet(packet_buffer, 2, 0, 0, 1);
-			packetbuf_copyfrom(&packet_buffer, 2);
-			mesh_send(&mesh, &sink_addr);			
+		/* Ok, nothing has happened for a long time. It seems like the
+		 * room is unoccupied. */
+		if (etimer_expired(&presence_timeout)) {
+			/* Tell the sink that the room is unoccupied if it was
+			 * occupied before */
+			if (sensor_status) {
+				send_status_packet(0);
+			}
+			sensor_status = 0;
 		} 
 	}
 	PROCESS_END();

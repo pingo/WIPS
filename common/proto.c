@@ -7,7 +7,7 @@ int proto_p_type(char *buf)
 
 void proto_ack_pack(char *buf, int seq_flag, int retries)
 {
-  buf[0] = (P_TYPE_STATUS & 0x3F) | ((seq_flag != 0) << 6) | (retries & 0x1) << 7;
+  buf[0] = (P_TYPE_ACK & 0x3F) | ((seq_flag != 0) << 6) | (retries & 0x1) << 7;
   buf[1] = (retries >> 1);
 }
 

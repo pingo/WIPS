@@ -4,20 +4,36 @@
 #include "net/rime/mesh.h"
 
 #include "callbacks.h"
+#include "proto.h"
+
+#include <stdio.h>
+
+extern int p_seq_flag, p_retries;
 
 static int alert = 0;
 
 void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 {
 	char *ptr = packetbuf_dataptr();
+	int seq_flag, retries;
 
-	printf("%d.%d %d %d\r\n",
-		from->u8[0],  /* Originating node address. */
-		from->u8[1],
-		*ptr ? 1 : 0, /* 1 = Occupied, 0 = Unoccupied. */
-		hops);        /* Hops the packet took, 1 for direct transmission. */
+	switch (proto_p_type(ptr))
+	{
+		case P_TYPE_ACK:
+			proto_ack_unpack(ptr, &seq_flag, &retries);
+			printf("ACK from: %d.%d, hops: %d, seq_flag: %d, retries: %d\n",
+				from->u8[0], from->u8[1], hops, seq_flag, retries);
+			/* Invert ACKed seqno and reset retries */
+			if (p_seq_flag == seq_flag) {
+				p_seq_flag = !p_seq_flag;
+				p_retries = 0;
+			}
+			break;
 
-	return 0; /* 0 = Do not resend. */
+		default:
+			printf("unkown packet type\n");
+			break;
+	}
 }
 
 void cb_sent(struct mesh_conn *c)
