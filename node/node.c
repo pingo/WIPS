@@ -25,10 +25,17 @@ const static struct mesh_callbacks callbacks =
 #define SAMPLES 10
 #define DELTA 1000
 
+
+void std_packet(char *packet_buffer, int p_type, int seq_flag, int retries, int payload) {
+	packet_buffer[0] = p_type & 0x3F | (seq_flag != 0) << 6 | (retries & 0x1) << 7;
+	packet_buffer[1] = retries >> 1 | (payload != 0) <<7);
+}
+
 PROCESS_THREAD(node_process, ev, data)
 {
-	static struct etimer et;
-	static struct timer event_timer; /* Periodic threshhold for event sensing. */
+	static struct etimer period;
+	static struct etimer event;
+	static struct etimer timeout;
 	
 	static int values[SAMPLES]; /* Buffer of SAMPLES latest values. */
 	static int sample = 0;      /* Index of current sample in buffer. */
@@ -46,13 +53,21 @@ PROCESS_THREAD(node_process, ev, data)
 
 	mesh_open(&mesh, 132, &callbacks);
 	
-	/* Set timer to reduce startup conditions */
-	timer_set(&event_timer, CLOCK_SECOND * 5);
+	/* Set timers to reduce startup conditions */
+	etimer_set(&period, CLOCK_SECOND * 15);
+	etimer_set(&event, CLOCK_SECOND * 5);
+	etimer_set(&timeout, CLOCK_SECOND * 300);
+	
+	/* Set sink node address */
+	rimeaddr_t sink_addr = { { 70, 0 } };
 	
 	for (;;)
 	{
-		etimer_set(&et, CLOCK_SECOND / 2);
-		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et) || ev == sensors_event);
+		
+		if (ev == sensors_event) {
+			printf("button pressed", );
+		}
 				
 		/*
 		 * The code below implements a Simple Moving Average filter.
@@ -77,21 +92,40 @@ PROCESS_THREAD(node_process, ev, data)
 			event = 0;
 		}
 		
-		printf("v: %4d, avg: %4ld event:  %i\n", v, avg, event);
+		printf("v: %4d, avg: %4ld event:  %i\n", v, avg, event)</>;
 		
-		/* Send event if presence is sensed, 
-		   toggle the green led and print some stats */
+		char packet_buffer[3];
+		memset(packet_buffer, 0, 3*size_of(char));
+				
+		/* Periodic */
 		
-		rimeaddr_t addr = { { 70, 0 } };
-		
-		if (event && timer_expired(&event_timer)) {
-			timer_set(&event_timer, CLOCK_SECOND * 5);
-			packetbuf_copyfrom(&event, 1);
-			mesh_send(&mesh, &addr);
-			leds_toggle(LEDS_GREEN);
-			print_stats();
+		if (etimer_expired(&period)) {
+			etimer_set(&et, CLOCK_SECOND * 15);
+			std_packet(packet_buffer, 0, 0, 0, event);
+			packetbuf_copyfrom(&event, 2);
+			mesh_send(&mesh, &sink_addr);
 		}
+				
+		/* Event */	
+		
+		if (etimer_expired(&event)) {
+			etimer_set(&event_threshold, CLOCK_SECOND * 5);
+			std_packet(packet_buffer, 1, 0, 0, 1);
+			packetbuf_copyfrom(&packet_buffer, 2);
+			mesh_send(&mesh, &sink_addr);
+			
+			event = 0;
+		}
+		
+		/* Timeout */
+		
+		if (etimer_expired(&timeout)) {
+			// is the room empty, aka timeout?
+			etimer_set(&event_threshold, CLOCK_SECOND * 300);
+			std_packet(packet_buffer, 2, 0, 0, 1);
+			packetbuf_copyfrom(&packet_buffer, 2);
+			mesh_send(&mesh, &sink_addr);			
+		} 
 	}
 	PROCESS_END();
-	
 }
