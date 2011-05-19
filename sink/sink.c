@@ -10,7 +10,7 @@
 PROCESS(sink_process, "Sink");
 AUTOSTART_PROCESSES(&sink_process);
 
-static struct mesh_conn mesh;
+struct mesh_conn mesh;
 const static struct mesh_callbacks callbacks =
 	{
 		.recv     = &cb_recv,

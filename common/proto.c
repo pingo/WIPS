@@ -13,8 +13,8 @@ void proto_ack_pack(char *buf, int seq_flag, int retries)
 
 void proto_ack_unpack(char *buf, int *seq_flag, int *retries)
 {
-  *seq_flag =  (buf[0] & (1 << 6));
-  *retries  = ((buf[0] & (1 << 7)) << 7) | (buf[1] & 0x7F);
+  *seq_flag =  (buf[0] & (1 << 6)) ? 1 : 0;
+  *retries  = ((buf[0] & (1 << 7)) >> 7) | ((buf[1] << 1) & 0xFE);
 }
 
 void proto_status_pack(char *buf, int seq_flag, int retries, int payload)
@@ -25,8 +25,8 @@ void proto_status_pack(char *buf, int seq_flag, int retries, int payload)
 
 void proto_status_unpack(char *buf, int *seq_flag, int *retries, int *payload)
 {
-  *seq_flag =  (buf[0] & (1 << 6));
-  *retries  = ((buf[0] & (1 << 7)) << 7) | (buf[1] & 0x7F);
-  *payload  =  (buf[1] & (1 << 7));
+  *seq_flag =  (buf[0] & (1 << 6)) ? 1 : 0;
+  *retries  = ((buf[0] & (1 << 7)) >> 7) | ((buf[1] << 1) & 0xFE);
+  *payload  =  (buf[1] & (1 << 7)) ? 1 : 0;
 }
 

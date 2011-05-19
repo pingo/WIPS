@@ -45,6 +45,8 @@ static void send_status_packet(int payload)
 	proto_status_pack(packet_buffer, p_seq_flag, p_retries, payload);
 	packetbuf_copyfrom(packet_buffer, 2);
 	mesh_send(&mesh, &sink_addr);
+
+	++p_retries;
 }
 
 #define SENSOR_INTERVAL (CLOCK_SECOND / 2)
