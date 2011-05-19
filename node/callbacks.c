@@ -7,6 +7,7 @@
 #include "proto.h"
 
 #include <stdio.h>
+#include <inttypes.h>
 
 extern int p_seq_flag, p_retries;
 
@@ -16,6 +17,7 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 {
 	char *ptr = packetbuf_dataptr();
 	int seq_flag, retries;
+	uint16_t payload;
 
 	switch (proto_p_type(ptr))
 	{
@@ -28,6 +30,30 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 				p_seq_flag = !p_seq_flag;
 				p_retries = 0;
 			}
+			break;
+
+		case P_TYPE_SET_DELTA:
+			proto_set_unpack(ptr, &payload);
+			printf("SET DELTA from: %d.%d, hops: %d, payload: %d\n",
+				from->u8[0], from->u8[1], hops, seq_flag, retries);
+			break;
+
+		case P_TYPE_SET_SENSOR_INTERVAL:
+			proto_set_unpack(ptr, &payload);
+			printf("SET SENSOR INTERVAL from: %d.%d, hops: %d, payload: "PRIu16"\n",
+				from->u8[0], from->u8[1], hops, payload);
+			break;
+
+		case P_TYPE_SET_SENSOR_TIMEOUT:
+			proto_set_unpack(ptr, &payload);
+			printf("SET SENSOR TIMEOUT from: %d.%d, hops: %d, payload: "PRIu16"\n",
+				from->u8[0], from->u8[1], hops, payload);
+			break;
+
+		case P_TYPE_SET_BEACON_INTERVAL:
+			proto_set_unpack(ptr, &payload);
+			printf("SET BEACON INTERVAL from: %d.%d, hops: %d, payload: "PRIu16"\n",
+				from->u8[0], from->u8[1], hops, payload);
 			break;
 
 		default:
