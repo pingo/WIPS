@@ -5,10 +5,12 @@
 
 int main(void)
 {
-	char buf[2];
+	char buf[3];
 	int st;
 	int pt;
 	int i, it;
+	uint16_t int_16;
+	uint16_t pt_16;
 
 	/*
 	 * Test ack_pack:
@@ -56,6 +58,17 @@ int main(void)
 		assert(i == it);
 		assert(1 == st);
 		assert(1 == pt);
+	}
+
+	/*
+	 * Test set_pack:
+	 */
+
+	for (int_16 = 0; int_16 < 65535; int_16++)
+	{
+		proto_set_pack(buf, 0, int_16);
+		proto_set_unpack(buf, &pt_16);
+		assert(int_16 == pt_16);
 	}
 
 	puts("All OK");
