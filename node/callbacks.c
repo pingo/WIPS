@@ -7,9 +7,16 @@
 #include "proto.h"
 
 #include <stdio.h>
-#include <inttypes.h>
+//#include <inttypes.h>
+
+uint16_t delta = 1000;
+clock_time_t sensor_interval = CLOCK_SECOND / 2;
+clock_time_t sensor_timeout = CLOCK_SECOND * 20;
+clock_time_t beacon_interval = CLOCK_SECOND * 15;
 
 extern int p_seq_flag, p_retries;
+extern struct mesh_conn mesh;
+extern rimeaddr_t sink_addr;
 
 static int alert = 0;
 
@@ -35,25 +42,36 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 		case P_TYPE_SET_DELTA:
 			proto_set_unpack(ptr, &payload);
 			printf("SET DELTA from: %d.%d, hops: %d, payload: %d\n",
-				from->u8[0], from->u8[1], hops, seq_flag, retries);
+				from->u8[0], from->u8[1], hops, payload);
+			delta = payload;
+			printf("delta = %i\n", delta);
+			mesh_send(&mesh, &sink_addr);
 			break;
 
 		case P_TYPE_SET_SENSOR_INTERVAL:
 			proto_set_unpack(ptr, &payload);
-			printf("SET SENSOR INTERVAL from: %d.%d, hops: %d, payload: "PRIu16"\n",
+			printf("SET SENSOR INTERVAL from: %d.%d, hops: %d, payload: %d\n",
 				from->u8[0], from->u8[1], hops, payload);
+			sensor_interval = CLOCK_SECOND * payload;
+			printf("sensor_interval = %i\n", sensor_interval);
+			mesh_send(&mesh, &sink_addr);			
 			break;
 
 		case P_TYPE_SET_SENSOR_TIMEOUT:
 			proto_set_unpack(ptr, &payload);
-			printf("SET SENSOR TIMEOUT from: %d.%d, hops: %d, payload: "PRIu16"\n",
+			printf("SET SENSOR TIMEOUT from: %d.%d, hops: %d, payload: %d\n",
 				from->u8[0], from->u8[1], hops, payload);
+			sensor_timeout = CLOCK_SECOND * payload;
+			printf("sensor_timeout = %i\n", sensor_timeout);
+			mesh_send(&mesh, &sink_addr);			
 			break;
 
 		case P_TYPE_SET_BEACON_INTERVAL:
 			proto_set_unpack(ptr, &payload);
-			printf("SET BEACON INTERVAL from: %d.%d, hops: %d, payload: "PRIu16"\n",
+			printf("SET BEACON INTERVAL from: %d.%d, hops: %d, payload: %d\n",
 				from->u8[0], from->u8[1], hops, payload);
+			beacon_interval = CLOCK_SECOND * payload;
+			printf("beacon_interval = %i\n", beacon_interval);
 			break;
 
 		default:
