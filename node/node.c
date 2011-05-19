@@ -28,8 +28,8 @@ static rimeaddr_t sink_addr = { { 70, 0 } };
 
 const static struct mesh_callbacks callbacks =
 	{
-		.recv    = &cb_recv,
-		.sent    = &cb_sent,
+		.recv     = &cb_recv,
+		.sent     = &cb_sent,
 		.timedout = &cb_timedout,
 	};
 
@@ -47,10 +47,14 @@ static void send_status_packet(int payload)
 	mesh_send(&mesh, &sink_addr);
 }
 
+#define SENSOR_INTERVAL (CLOCK_SECOND / 2)
+#define SENSOR_TIMEOUT (CLOCK_SECOND * 5 * 60)
+#define BEACON_INTERVAL (CLOCK_SECOND * 15)
+
 PROCESS_THREAD(sensor_process, ev, data)
 {
-	struct etimer interval_timer, /* Sampling interval timer. */
-	              empty_timer;    /* Timer for determening room inactivity. */
+	static struct etimer interval_timer, /* Sampling interval timer. */
+	                     empty_timer;    /* Timer for determening room inactivity. */
 
 	static int values[SAMPLES]; /* Buffer of SAMPLES latest values. */
 	static int sample = 0;      /* Index of current sample in buffer. */
@@ -65,12 +69,11 @@ PROCESS_THREAD(sensor_process, ev, data)
 	empty_event = process_alloc_event();
 	occupied_event = process_alloc_event();
 
-	etimer_set(&empty_timer, CLOCK_SECOND * 5 * 60);
-	etimer_set(&interval_timer, CLOCK_SECOND / 2);
+	etimer_set(&empty_timer, SENSOR_TIMEOUT);
 
 	for (;;)
 	{
-		etimer_reset(&interval_timer);
+		etimer_set(&interval_timer, SENSOR_INTERVAL);
 		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&interval_timer));
 
 		/*
@@ -78,7 +81,8 @@ PROCESS_THREAD(sensor_process, ev, data)
 		 */
 
 		sample = (sample + 1) % SAMPLES; /* Wrap around in buffer. */
-		values[sample] = phidgets.value(PHIDGET3V_1); /* Get value from sensor. */
+		v = phidgets.value(PHIDGET3V_1); /* Get value from sensor. */
+		values[sample] = v;
 
 		/* Calculate average of the SAMPLES latest values. */
 		avg = 0;
@@ -93,7 +97,7 @@ PROCESS_THREAD(sensor_process, ev, data)
 				occupied = 1;
 			}
 
-			etimer_reset(&empty_timer);
+			etimer_set(&empty_timer, SENSOR_TIMEOUT);
 		}
 		else if (occupied && etimer_expired(&empty_timer)) {
 			process_post(&node_process, empty_event, NULL);
@@ -106,12 +110,12 @@ PROCESS_THREAD(sensor_process, ev, data)
 
 PROCESS_THREAD(node_process, ev, data)
 {
-	static struct etimer period;	
+	static struct etimer period_timer;	
 	static int sensor_status = 0; /* 0 if not active (no one in room) */
 
 	PROCESS_EXITHANDLER(mesh_close(&mesh));
 	PROCESS_BEGIN();
-	SENSORS_ACTIVATE(phidgets);
+	SENSORS_ACTIVATE(button_sensor);
 
 	mesh_open(&mesh, 132, &callbacks);
 
@@ -119,11 +123,11 @@ PROCESS_THREAD(node_process, ev, data)
 	process_start(&sensor_process, NULL);
 
 	/* Set timers to reduce startup conditions */
-	etimer_set(&period, CLOCK_SECOND * 15);
+	etimer_set(&period_timer, BEACON_INTERVAL);
 
 	for (;;)
 	{
-		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&period) ||
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&period_timer) ||
 		                         ev == sensors_event ||
 		                         ev == occupied_event ||
 		                         ev == empty_event);
@@ -132,6 +136,8 @@ PROCESS_THREAD(node_process, ev, data)
 			printf("button pressed\n");
 		}
 		else if (ev == occupied_event) {
+			printf("OCCUPIED EVENT\n");
+
 			sensor_status = 1;
 			send_status_packet(sensor_status);
 		}
@@ -141,9 +147,9 @@ PROCESS_THREAD(node_process, ev, data)
 		}
 
 		/* Send periodic status packet */
-		if (etimer_expired(&period)) {
+		if (etimer_expired(&period_timer)) {
 			/* Reset periodic timer */
-			etimer_reset(&period);
+			etimer_set(&period_timer, BEACON_INTERVAL);
 			/* Send packet */
 			send_status_packet(sensor_status);
 		}
