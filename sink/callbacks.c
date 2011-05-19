@@ -18,7 +18,7 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 
 	proto_status_unpack(ptr, &seq_flag, &retries, &payload);
 
-	printf("%d.%d %2u %4d %d %3d %d\n",
+	printf("%d.%d, %2u, %4d, %d, %3d, %d\n",
 		from->u8[0], from->u8[1],
 		hops,
 		packetbuf_attr(PACKETBUF_ATTR_RSSI),

@@ -1,13 +1,13 @@
-import serial, argparse, sqlite3
+import serial, argparse, sqlite3, csv
 
 def serve(db, port):
 	s = serial.Serial(port, 115200)
-
 	s.readline() # Skip one line to prevent fragmented line.
 
-	for line in s:
-		line = line.rstrip('\r\n')
-		addr, v, hops = line.split(' ')
+	reader = csv.reader(s, delimiter=',')
+
+	for line in reader:
+		addr, hops, rssi, seq_flag, retries, v = line
 
 		major, minor = addr.split('.')
 
@@ -22,10 +22,13 @@ def serve(db, port):
 				int(major),
 				int(minor),
 				int(hops),
+				int(rssi),
+				int(seq_flag),
+				int(retries),
 				int(v)
 			)
 
-		db.execute('INSERT INTO `event` VALUES (?, ?, strftime(\'%s\', \'now\'), ?, ?)', t)
+		db.execute('INSERT INTO `event` VALUES (?, ?, strftime(\'%s\', \'now\'), ?, ?, ?, ?, ?)', t)
 		db.commit()
 
 def main():
