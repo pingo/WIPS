@@ -35,12 +35,12 @@ void proto_status_unpack(char *buf, int *seq_flag, int *retries, int *payload)
 void proto_set_pack(char *buf, int p_type, uint16_t payload)
 {
   buf[0] = (p_type & 0x3F);
-  buf[1] = payload & 0xFF;
-  buf[2] = (payload >> 8) & 0xFF;
+  buf[1] = (payload >> 8) & 0xFF;
+  buf[2] = payload & 0xFF;
 }
 
 void proto_set_unpack(char *buf, uint16_t *payload)
 {
-  *payload = (buf[1] & 0xFF) | (buf[2] & 0xFF) & 0xFF;
+  *payload = (buf[2] & 0xFF) | (buf[1] & 0xFF) << 8;
 }
 
