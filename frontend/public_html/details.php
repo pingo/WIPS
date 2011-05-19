@@ -26,7 +26,7 @@ $main->insertText('name', !empty($top['name']) ? $top['name'] : 'Unnamed room');
 $main->insertText('address',  'Mote ' . $_GET['mote']);
 
 if ($top['time'])
-	$main->insertText('lastseen', date('Y-m-d H:m:s', $top['time']) . ' (' . time_ago($top['time']) . ')');
+	$main->insertText('lastseen', date('Y-m-d H:i:s', $top['time']) . ' (' . time_ago($top['time']) . ')');
 else
 	$main->insertText('lastseen', 'Never');
 
@@ -50,7 +50,7 @@ if (!empty($top))
 			array
 			(
 				'tr',
-				array('td', 'class' => 'time', date('Y-m-d H:m:s', $row['time'])),
+				array('td', 'class' => 'time', date('Y-m-d H:i:s', $row['time'])),
 				array('td', 'Became ' . ($row['value'] ? 'occupied' : 'unoccupied')),
 			);
 
