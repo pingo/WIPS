@@ -12,7 +12,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static process_event_t empty_event;
+static process_event_t occupied_event;
+
+
 PROCESS(node_process, "node");
+PROCESS(sensor_process, "sensor");
 AUTOSTART_PROCESSES(&node_process);
 
 int p_seq_flag = 0;
@@ -20,7 +25,7 @@ int p_retries = 0;
 
 static struct mesh_conn mesh;
 static rimeaddr_t sink_addr = { { 70, 0 } };
-	
+
 const static struct mesh_callbacks callbacks =
 	{
 		.recv    = &cb_recv,
@@ -42,48 +47,39 @@ static void send_status_packet(int payload)
 	mesh_send(&mesh, &sink_addr);
 }
 
-PROCESS_THREAD(node_process, ev, data)
+PROCESS_THREAD(sensor_process, ev, data)
 {
-	static struct etimer period;
-	static struct etimer presence_timeout;
-	
+	struct etimer interval_timer, /* Sampling interval timer. */
+	              empty_timer;    /* Timer for determening room inactivity. */
+
 	static int values[SAMPLES]; /* Buffer of SAMPLES latest values. */
 	static int sample = 0;      /* Index of current sample in buffer. */
-	
+
+	static int occupied = 0;
 	static int i, v;
 	static long avg;
-	
-	static int sensor_status = 0; /* 0 if not active (no one in room) */
-	
-	//memset(values, 0, SAMPLES*sizeof(uint8_t));
-	
-	PROCESS_EXITHANDLER(mesh_close(&mesh));
+
 	PROCESS_BEGIN();
 	SENSORS_ACTIVATE(phidgets);
 
-	mesh_open(&mesh, 132, &callbacks);
-	
-	/* Set timers to reduce startup conditions */
-	etimer_set(&period, CLOCK_SECOND * 15);
-	etimer_set(&presence_timeout, CLOCK_SECOND * 300);
-	
+	empty_event = process_alloc_event();
+	occupied_event = process_alloc_event();
+
+	etimer_set(&empty_timer, CLOCK_SECOND * 5 * 60);
+	etimer_set(&interval_timer, CLOCK_SECOND / 2);
+
 	for (;;)
 	{
-		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&period) || etimer_expired(&presence_timeout) || ev == sensors_event);
-		
-		if (ev == sensors_event) {
-			printf("button pressed");
-		}
-				
+		etimer_reset(&interval_timer);
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&interval_timer));
+
 		/*
-		 * The code below implements a Simple Moving Average filter.
+		 * In the code below we implement a Simple Moving Average filter.
 		 */
-		
+
 		sample = (sample + 1) % SAMPLES; /* Wrap around in buffer. */
-		
-		v = phidgets.value(PHIDGET3V_1); /* Get new value from sensor. */
-		values[sample] = v;
-		
+		values[sample] = phidgets.value(PHIDGET3V_1); /* Get value from sensor. */
+
 		/* Calculate average of the SAMPLES latest values. */
 		avg = 0;
 		for (i = 0; i < SAMPLES; i++)
@@ -92,37 +88,66 @@ PROCESS_THREAD(node_process, ev, data)
 
 		/* See if our newest value is off by more than DELTA from the average */
 		if (abs(v - avg) > DELTA) {
-			/* Reset the presence timer */
-			etimer_set(&presence_timeout, CLOCK_SECOND * 300);
-			/* Check if we should send packet (only if nobody was
-			 * present earlier) */
-			if (!sensor_status) {
-				/* Send status packet */
-				send_status_packet(1);
-				/* Print debug */
-				printf("v: %4d, avg: %4ld sensor_activated:  %i\n", v, avg, sensor_status);
+			if (!occupied) {
+				process_post(&node_process, occupied_event, NULL);
+				occupied = 1;
 			}
-			sensor_status = 1;
+
+			etimer_reset(&empty_timer);
 		}
-		
+		else if (occupied && etimer_expired(&empty_timer)) {
+			process_post(&node_process, empty_event, NULL);
+			occupied = 0;
+		}
+	}
+
+	PROCESS_END();
+}
+
+PROCESS_THREAD(node_process, ev, data)
+{
+	static struct etimer period;	
+	static int sensor_status = 0; /* 0 if not active (no one in room) */
+
+	PROCESS_EXITHANDLER(mesh_close(&mesh));
+	PROCESS_BEGIN();
+	SENSORS_ACTIVATE(phidgets);
+
+	mesh_open(&mesh, 132, &callbacks);
+
+	/* Start the sensor process. */
+	process_start(&sensor_process, NULL);
+
+	/* Set timers to reduce startup conditions */
+	etimer_set(&period, CLOCK_SECOND * 15);
+
+	for (;;)
+	{
+		PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&period) ||
+		                         ev == sensors_event ||
+		                         ev == occupied_event ||
+		                         ev == empty_event);
+
+		if (ev == sensors_event) {
+			printf("button pressed\n");
+		}
+		else if (ev == occupied_event) {
+			sensor_status = 1;
+			send_status_packet(sensor_status);
+		}
+		else if (ev == empty_event) {
+			sensor_status = 0;
+			send_status_packet(sensor_status);
+		}
+
 		/* Send periodic status packet */
 		if (etimer_expired(&period)) {
 			/* Reset periodic timer */
-			etimer_set(&period, CLOCK_SECOND * 15);
+			etimer_reset(&period);
 			/* Send packet */
 			send_status_packet(sensor_status);
 		}
-				
-		/* Ok, nothing has happened for a long time. It seems like the
-		 * room is unoccupied. */
-		if (etimer_expired(&presence_timeout)) {
-			/* Tell the sink that the room is unoccupied if it was
-			 * occupied before */
-			if (sensor_status) {
-				send_status_packet(0);
-			}
-			sensor_status = 0;
-		} 
 	}
+
 	PROCESS_END();
 }
