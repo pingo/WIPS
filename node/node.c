@@ -46,11 +46,13 @@ static void send_status_packet(int payload)
 	packetbuf_copyfrom(packet_buffer, 2);
 	mesh_send(&mesh, &sink_addr);
 
+	printf("DATA  to: %d.%d, seq_flag: %i, retries: %i, payload: %i\n", sink_addr.u8[0], sink_addr.u8[1], p_seq_flag, p_retries, payload);
+
 	++p_retries;
 }
 
 #define SENSOR_INTERVAL (CLOCK_SECOND / 2)
-#define SENSOR_TIMEOUT (CLOCK_SECOND * 5 * 60)
+#define SENSOR_TIMEOUT (CLOCK_SECOND * 20)
 #define BEACON_INTERVAL (CLOCK_SECOND * 15)
 
 PROCESS_THREAD(sensor_process, ev, data)
