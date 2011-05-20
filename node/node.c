@@ -8,6 +8,7 @@
 
 #include "callbacks.h"
 #include "proto.h"
+#include "node.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,18 +22,16 @@ AUTOSTART_PROCESSES(&node_process);
 
 #define SAMPLES 10
 
-extern uint16_t delta;
-extern struct etimer empty_timer;
-extern struct etimer interval_timer;
-extern struct etimer period_timer;
-extern clock_time_t sensor_interval;
-extern clock_time_t sensor_timeout;
-extern clock_time_t beacon_interval;
-
 struct mesh_conn mesh;
 rimeaddr_t sink_addr = { { 70, 0 } };
 int p_seq_flag = 0;
 int p_retries = 0;
+
+/* Set standard settings */
+uint16_t delta = 1000;
+clock_time_t sensor_interval = CLOCK_SECOND / 2;
+clock_time_t sensor_timeout = CLOCK_SECOND * 20;
+clock_time_t beacon_interval = CLOCK_SECOND * 15;
 
 const static struct mesh_callbacks callbacks =
 	{

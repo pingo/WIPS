@@ -5,18 +5,9 @@
 
 #include "callbacks.h"
 #include "proto.h"
+#include "node.h"
 
 #include <stdio.h>
-//#include <inttypes.h>
-
-uint16_t delta = 1000;
-clock_time_t sensor_interval = CLOCK_SECOND / 2;
-clock_time_t sensor_timeout = CLOCK_SECOND * 20;
-clock_time_t beacon_interval = CLOCK_SECOND * 15;
-
-extern int p_seq_flag, p_retries;
-extern struct mesh_conn mesh;
-extern rimeaddr_t sink_addr;
 
 static int alert = 0;
 
