@@ -35,7 +35,6 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 			printf("SET DELTA from: %d.%d, hops: %d, payload: %d\n",
 				from->u8[0], from->u8[1], hops, payload);
 			delta = payload;
-			printf("delta = %i\n", delta);
 			mesh_send(&mesh, &sink_addr);
 			break;
 
@@ -44,7 +43,6 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 			printf("SET SENSOR INTERVAL from: %d.%d, hops: %d, payload: %d\n",
 				from->u8[0], from->u8[1], hops, payload);
 			sensor_interval = CLOCK_SECOND * payload;
-			printf("sensor_interval = %i\n", sensor_interval);
 			mesh_send(&mesh, &sink_addr);			
 			break;
 
@@ -53,7 +51,6 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 			printf("SET SENSOR TIMEOUT from: %d.%d, hops: %d, payload: %d\n",
 				from->u8[0], from->u8[1], hops, payload);
 			sensor_timeout = CLOCK_SECOND * payload;
-			printf("sensor_timeout = %i\n", sensor_timeout);
 			mesh_send(&mesh, &sink_addr);			
 			break;
 
@@ -62,7 +59,7 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 			printf("SET BEACON INTERVAL from: %d.%d, hops: %d, payload: %d\n",
 				from->u8[0], from->u8[1], hops, payload);
 			beacon_interval = CLOCK_SECOND * payload;
-			printf("beacon_interval = %i\n", beacon_interval);
+			mesh_send(&mesh, &sink_addr);
 			break;
 
 		default:
