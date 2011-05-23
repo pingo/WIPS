@@ -1,15 +1,16 @@
 <?php
 
 require_once 'util.inc';
+require_once 'config.inc';
 
 spl_autoload_extensions('.class.inc');
 spl_autoload_register();
 
 $main = new DOMKitObject('main.xml');
 
-$db = new PDO('sqlite:../../backend/backend.db');
+$db = new PDO($cfg_database);
 
-$result = $db->query('SELECT DISTINCT * FROM (SELECT `major`, `minor`, `major` || \'.\' || `minor` AS `address`, `value` FROM `event` ORDER BY `time`) INNER JOIN `mote` USING (`major`, `minor`) GROUP BY `address`');
+$result = $db->query('SELECT DISTINCT `name`, `major` || \'.\' || `minor` AS `address` FROM `mote` ORDER BY `name`');
 
 $main->insertText('js', 'var moteAddress = "' . $_GET['mote'] . '";');
 
@@ -26,7 +27,6 @@ foreach ($result as $row)
 		(
 			'div',
 			'class' => 'room' .
-				($row['value'] ? ' occupied' : ' unoccupied') .
 				($row['address'] == $_GET['mote'] ? ' current' : ''),
 
 			array('a',

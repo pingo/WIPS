@@ -2,25 +2,11 @@
 <div>
 	<?domkit status ?>
 
-	<h1><?domkit name ?></h1>
-	<b><?domkit address ?></b>
-
-	<h2>Status</h2>
-	<p>
-		<dl>
-			<dt>Last seen:</dt>
-			<dd><?domkit lastseen ?></dd>
-
-			<dt>Recorded events:</dt>
-			<dd><?domkit noevents ?></dd>
-
-			<dt>Average hops:</dt>
-			<dd><?domkit hopsavg ?></dd>
-		</dl>
-	</p>
+	<h2>Rename</h2>
 
 	<form action="/rename.php" method="post">
 		<?domkit form ?>
+		<input type="text" name="name" />
 		<input type="submit" value="Rename" />
 	</form>
 

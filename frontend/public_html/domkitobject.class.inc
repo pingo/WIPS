@@ -111,8 +111,9 @@ class DOMKitObject
 
 	public function saveXML()
 	{
-		foreach ($this->ips as $ip) # Remove unused insertion points from output.
-			$ip->parentNode->removeChild($ip);
+		if (count($this->ips) > 0)
+			foreach ($this->ips as $ip) # Remove unused insertion points from output.
+				$ip->parentNode->removeChild($ip);
 
 		return $this->document->saveXML();
 	}

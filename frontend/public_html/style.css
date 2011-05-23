@@ -35,17 +35,12 @@ h1
 	padding: 1em;
 }
 
-.time
-{
-	color: #555;
-	padding-right: 1em;
-}
-
 .room
 {
 	padding: 0.25em 2.0em;
 }
 
+.occupied, .unoccupied { margin: 0.5em; padding-left: 20px; }
 .occupied   { background: url('images/occupied.png') left center no-repeat; }
 .unoccupied { background: url('images/unoccupied.png') left center no-repeat; }
 
@@ -63,16 +58,21 @@ h1
 
 .current
 {
+	border-radius: 5px 0 0 5px;
 	background-color: white;
+}
+
+.time
+{
+	color: #555;
+	padding-right: 0.75em;
 }
 
 dl
 {
 	display: block;
-/*	float: left; */
-	margin: 1em 0;
-	padding: 0;
 	overflow: auto;
+	padding: 0;
 }
 
 dt
