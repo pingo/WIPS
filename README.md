@@ -53,5 +53,7 @@ sensor nodes and the base station PC.
 `testapps` contains test programs for sampling data from phidgets and
 testing different types of network architectures.
 
+`tests` conatins unit tests.
+
 `tools` contains some helper programs that aid development and
 debugging.
