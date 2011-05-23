@@ -1,4 +1,4 @@
-import serial, argparse, sqlite3, csv
+import serial, argparse, sqlite3, csv, subprocess
 import SocketServer
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
@@ -10,6 +10,7 @@ q       = {}      # Queued ACKs.
 qLock   = Lock()  # Lock for ACK queue.
 uEvent  = Event() # New data event.
 uLatest = time();
+lampState = False
 
 UPDATE_TIMEOUT = 5.0  # How long to wait for ACKs.
 DATA_TIMEOUT = 10.0   # How long to block when waiting for new data.
@@ -18,6 +19,18 @@ class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer): pass
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
+
+# Call the rfcmd program to send a command to the remote switch
+def toggle_tellstick(port, on):
+	global lampState
+	if on:
+		on_str = '1'
+	else:
+		on_str = '0'
+
+	if on != lampState:
+		subprocess.Popen(['rfcmd', port, 'NEXA', 'A', '1', on_str])
+	lampState = on
 
 def queueAck(addr, t):
 	acksLock.acquire()
@@ -72,7 +85,7 @@ class ServerThread(Thread):
 
 		print "uLatest:", uLatest, ", time:", time
 
-		if uLatest >= time:
+		if uLatest > time:
 			return True
 
 		success = uEvent.wait(DATA_TIMEOUT)
@@ -93,13 +106,10 @@ class ServerThread(Thread):
 
 		self.server.serve_forever()
 
-server = ServerThread()
-server.start()
-
-def serve(db, port):
+def serve(db, sink_port, tellstick_port, tellstick_node):
 	global s
 
-	s = serial.Serial(port, 115200)
+	s = serial.Serial(sink_port, 115200)
 	# Skip one line to prevent fragmented line.
 	s.readline() 
 
@@ -134,6 +144,16 @@ def serve(db, port):
 			print line
 
 			uLatest = time()
+
+			# Turn on or off a light via the Tellstick
+			if tellstick_node == major + '.' + minor:
+				if int(v) == 1:
+					toggle = True
+				else:
+					toggle = False
+				toggle_tellstick(tellstick_port, toggle)
+
+			uLatest = time()
 			uEvent.set() # New data has arrived.
 
 		else:
@@ -157,13 +177,18 @@ def serve(db, port):
 def main():
 	argumentparser = argparse.ArgumentParser(description='Presence sensing storage server')
 	argumentparser.add_argument('db', metavar='DATABASE', type=str, help='database file to use')
-	argumentparser.add_argument('port', metavar='PORT', type=str, help='serial port to monitor')
+	argumentparser.add_argument('sink_port', metavar='SINK_PORT', type=str, help='serial port to monitor for sink data')
+	argumentparser.add_argument('tellstick_port', metavar='TELLSTICK_PORT', type=str, help='Tellstick port')
+	argumentparser.add_argument('tellstick_node', metavar='TELLSTICK_NODE', type=str, help='node address that should control the Tellstick')
 
 	arguments = argumentparser.parse_args()
 
 	db = sqlite3.connect(arguments.db)
 
-	serve(db, arguments.port)
+	server = ServerThread()
+	server.start()
+
+	serve(db, arguments.sink_port, arguments.tellstick_port, arguments.tellstick_node)
 	db.close()
 
 if __name__ == '__main__':
