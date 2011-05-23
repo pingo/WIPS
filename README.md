@@ -39,8 +39,7 @@ the WIPS project and are available in this repository:
 serial port from the sink node and enters events into a Sqlite
 database.
 
-`burn-nodeid` contains the burn-nodeid program from the Contiki suite
-for setting node IDs on our Zolertia Z1s.
+`common` contains the packet protocol, modified rime libraries and netstack configuration.
 
 `frontend` contains a PHP frontend for the database. An example
 lighttpd config is provided.
