@@ -13,6 +13,7 @@ static int alert = 0;
 
 void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 {
+	/* Packet attributes. */
 	char *ptr = packetbuf_dataptr();
 	int seq_flag, retries;
 	uint16_t payload;
@@ -23,7 +24,7 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 			proto_ack_unpack(ptr, &seq_flag, &retries);
 			printf("ACK from: %d.%d, hops: %d, seq_flag: %d, retries: %d\n",
 				from->u8[0], from->u8[1], hops, seq_flag, retries);
-			/* Invert ACKed seqno and reset retries */
+			/* Invert ACKed seq_flag and reset retries */
 			if (p_seq_flag == seq_flag) {
 				p_seq_flag = !p_seq_flag;
 				p_retries = 0;
@@ -63,7 +64,7 @@ void cb_recv(struct mesh_conn *c, const rimeaddr_t *from, uint8_t hops)
 			break;
 
 		default:
-			printf("unkown packet type\n");
+			printf("UNKNOWN PACKET TYPE\n");
 			break;
 	}
 }
@@ -78,10 +79,7 @@ void cb_sent(struct mesh_conn *c)
 
 void cb_timedout(struct mesh_conn *c)
 {
-	/*
-	 * Display a red light indicating network issues.
-	 */
-
+	/* Display a red light indicating network issues. */
 	if (!alert)
 		leds_on(LEDS_RED);
 

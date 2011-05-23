@@ -18,4 +18,3 @@ extern clock_time_t sensor_timeout;
 extern clock_time_t beacon_interval;
 
 #endif
-
