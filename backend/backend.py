@@ -1,17 +1,20 @@
 import serial, argparse, sqlite3, csv
+import SocketServer
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from SimpleXMLRPCServer import SimpleXMLRPCRequestHandler
 from threading import Thread, Lock, Event
-from time import gmtime
+from time import time
 
 s       = None    # Serial port file object.
 q       = {}      # Queued ACKs.
 qLock   = Lock()  # Lock for ACK queue.
 uEvent  = Event() # New data event.
-uLatest = 0;
+uLatest = time();
 
 UPDATE_TIMEOUT = 5.0  # How long to wait for ACKs.
 DATA_TIMEOUT = 10.0   # How long to block when waiting for new data.
+
+class AsyncXMLRPCServer(SocketServer.ThreadingMixIn,SimpleXMLRPCServer): pass
 
 class RequestHandler(SimpleXMLRPCRequestHandler):
     rpc_paths = ('/RPC2',)
@@ -67,8 +70,10 @@ class ServerThread(Thread):
 	def rpcWaitForData(self, time):
 		global uEvent, uLatest
 
-		if uLatest > time:
-			return true
+		print "uLatest:", uLatest, ", time:", time
+
+		if uLatest >= time:
+			return True
 
 		success = uEvent.wait(DATA_TIMEOUT)
 		uEvent.clear()
@@ -77,7 +82,7 @@ class ServerThread(Thread):
 	def run(self):
 		print "Starting server..."
 
-		self.server = SimpleXMLRPCServer(("localhost", 8000), requestHandler=RequestHandler)
+		self.server = AsyncXMLRPCServer(("localhost", 8000), requestHandler=RequestHandler)
 		self.server.register_introspection_functions()
 		self.server.register_multicall_functions()
 		self.server.register_function(self.rpcSetDelta, 'setDelta')
@@ -128,7 +133,7 @@ def serve(db, port):
 
 			print line
 
-			uLatest = gmtime()
+			uLatest = time()
 			uEvent.set() # New data has arrived.
 
 		else:
