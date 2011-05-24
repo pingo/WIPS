@@ -1,6 +1,7 @@
 <?php
 
 require_once 'config.inc';
+require_once 'util.inc';
 require_once 'xmlrpc.inc';
 
 spl_autoload_extensions('.class.inc');
@@ -22,8 +23,8 @@ if ($wait)
 {
 	$db = new PDO($cfg_database);
 
-	$stmt = $db->prepare('SELECT * FROM `event` INNER JOIN `mote` USING (`major`, `minor`) WHERE `major` = ? AND `minor` = ? AND `time` >= ? ORDER BY `time` DESC');
-	$stmt->execute(array($major, $minor, $time));
+	$stmt = $db->prepare('SELECT * FROM `event` INNER JOIN `mote` USING (`major`, `minor`) WHERE `major` = ? AND `minor` = ? AND `time` > ?  ORDER BY `time` DESC');
+	$stmt->execute(array($major, $minor, $time + 2));
 
 	$rows = $stmt->fetchAll();
 }
@@ -40,7 +41,8 @@ if (count($rows) > 0)
 				'class' => 'logEntry ' . ($row['value'] ? 'occupied' : 'unoccupied'),
 
 				array('span', 'class' => 'time', date('Y-m-d H:i:s', $row['time'])),
-				array('span', 'Room is now ' . ($row['value'] ? 'occupied' : 'empty'))
+				array('span', 'class' => 'rssi', $row['rssi']),
+				array('span', 'Room is ' . ($row['value'] ? 'occupied' : 'empty'))
 			);
 
 		if (!isset($status))

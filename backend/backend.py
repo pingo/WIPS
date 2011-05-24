@@ -78,7 +78,7 @@ class ServerThread(Thread):
 		return updateValue('i', addr, value)
 
 	def rpcSetBeaconInterval(self, addr, value):
-		return updateValue('b', value)
+		return updateValue('b', addr, value)
 
 	def rpcWaitForData(self, time):
 		global uEvent, uLatest
