@@ -68,6 +68,15 @@ h1
 	padding-right: 0.75em;
 }
 
+.rssi
+{
+	width: 2em;
+	display: inline-block;
+	text-align: right;
+	padding-right: 0.75em;
+	font-weight: bold;
+}
+
 dl
 {
 	display: block;
@@ -98,4 +107,17 @@ dd
 	height: 20em;
 	overflow-y: auto;
 }
+
+form
+{
+	margin: 0.5em;
+}
+
+.loading, .error, .success { display: none; }
+.loading img { vertical-align: middle; }
+.loading { color: #555; font-weight: bold; }
+.error { color: #d00; font-weight: bold; }
+.success { color: #0a0; font-weight: bold; }
+form label { font-weight: bold; display: inline-block; width: 10em; }
+form label:after { content: ':'; }
 

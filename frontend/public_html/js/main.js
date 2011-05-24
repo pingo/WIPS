@@ -6,6 +6,38 @@ function setLight(lit)
 	$('#bulb').attr('src', 'images/light' + (lit ? 'on' : 'off') + '.png');
 }
 
+function updateValue()
+{
+	var form = this;
+
+	$(form).find('.loading').each(function() { $(this).show(); });
+
+	$.ajax({
+		type     : 'POST',
+		url      : $(this).attr('action'),
+		dataType : 'text',
+		error    :
+			function(jqXHR, textStatus, errorThrown) {
+				$(form).find('.loading').hide();
+				$(form).find('.error').text('Request failed').show().delay(3000).fadeOut();
+			},
+		success  : 
+			function(data, textStatus, jqXHR) {
+				$(form).find('.loading').hide();
+				$(form).find('.success').text('Value updated').show().delay(3000).fadeOut();
+			},
+		timeout  : 20000,
+		data     : {
+			ajax   : 1,
+			mote   : moteAddress,
+			action : $(this).find('input[name="action"]').val(),
+			value  : $(this).find('input[name="value"]').val()
+		}
+	});
+
+	return false;
+}
+
 function loadDetails(xhr, status)
 {
 	switch (status)
@@ -84,5 +116,6 @@ function load()
 $(document).ready(function()
 {
 	load();
+	$('.ajaxForm').live('submit', updateValue);
 });
 

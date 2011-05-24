@@ -2,12 +2,45 @@
 <div>
 	<?domkit status ?>
 
-	<h2>Rename</h2>
+	<h2>Settings</h2>
 
 	<form action="/rename.php" method="post">
 		<?domkit form ?>
-		<input type="text" name="name" />
+		<label for="name">Rename</label><input id="name" type="text" name="name" />
 		<input type="submit" value="Rename" />
+	</form>
+
+	<form class="ajaxForm" action="/setvalue.php" method="post">
+		<input type="hidden" name="action" value="delta" />
+		<label for="delta">Sensor &#x394;</label><input id="delta" type="text" name="value" size="2" /> <input type="submit" value="Set" />
+
+		<span class="loading"><img src="images/spinner.gif" alt="" /> Updating...</span>
+		<span class="error">Error</span>
+		<span class="success">Success</span>
+	</form>
+	<form class="ajaxForm" action="/setvalue.php" method="post">
+		<input type="hidden" name="action" value="timeout" />
+		<label for="timeout">Timeout</label><input id="timeout" type="text" name="value" size="2" /> <input type="submit" value="Set" />
+
+		<span class="loading"><img src="images/spinner.gif" alt="" /> Updating...</span>
+		<span class="error">Error</span>
+		<span class="success">Success</span>
+	</form>
+	<form class="ajaxForm" action="/setvalue.php" method="post">
+		<input type="hidden" name="action" value="sinterval" />
+		<label for="sinterval">Sensor interval</label><input id="sinterval" type="text" name="value" size="2" /> <input type="submit" value="Set" />
+
+		<span class="loading"><img src="images/spinner.gif" alt="" /> Updating...</span>
+		<span class="error">Error</span>
+		<span class="success">Success</span>
+	</form>
+	<form class="ajaxForm" action="/setvalue.php" method="post">
+		<input type="hidden" name="action" value="binterval" />
+		<label for="binterval">Beacon interval</label><input id="binterval" type="text" name="value" size="2" /> <input type="submit" value="Set" />
+
+		<span class="loading"><img src="images/spinner.gif" alt="" /> Updating...</span>
+		<span class="error">Error</span>
+		<span class="success">Success</span>
 	</form>
 
 	<h2>Event log</h2>
