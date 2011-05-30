@@ -18,30 +18,7 @@
 	\titlepage
 \end{frame}
 
-\begin{frame} 
-\frametitle{Who we are}
-
-	\begin{block}
-
-		Erik Grafström
-
-	\end{block}
-
-	\begin{block}
-
-		Max Morén
-	
-	\end{block}
-	
-	\begin{block}
-	
-		Erik Olsson
-
-	\end{block}
-
-\end{frame}
-
-\begin{frame} 
+\begin{frame}
 \frametitle{Project areas}
 
 	\begin{columns}
@@ -96,18 +73,23 @@
 
 	\begin{block}
 
-		\begin{itemize}
+		\begin{itemize}\setlength{\itemsep}{4mm}
 
 			\item
-Research existing WSN networking stacks and environmental monitoring techniques.
+              Research existing WSN networking stacks and
+              environmental monitoring techniques.
 			\item
-Create and implement heuristics for indoor presence sensing.
+              Create and implement simple heuristics for indoor
+              presence sensing.
 			\item
-Evaluation of different networking solutions and energy efficient MAC protocols.
+              Perform an evaluation of different networking solutions
+              and energy efficient MAC protocols.
 			\item
-Implement and deploy working WSN based on evaluation results.
+              Implement and deploy a working WSN based on evaluation
+              results.
 			\item
-Implement data manager and web interface for data presentation.
+              Implement a data manager and a web interface for data
+              presentation.
 		
 		\end{itemize}
 
@@ -247,7 +229,7 @@ Implement data manager and web interface for data presentation.
 
 	\begin{center}
 		\begin{figure}
-			\includegraphics[width=\textwidth]{packet.png}
+			\includegraphics[width=1.05\textwidth]{packet.eps}
 			\caption{Packet headers.}
 		\end{figure}
 	\end{center}
@@ -283,25 +265,26 @@ Implement data manager and web interface for data presentation.
 
 	\begin{block}
 		
-		Network evaluation and implementation.
+		\begin{itemize}\setlength{\itemsep}{4mm}
 
-	\end{block}	
-	
-	\begin{block}
-				
-		Sensor evaluation and implementation.
-		
-	\end{block}
-		
-	\begin{block}
-		
-		Message protocol.
-		
-	\end{block}
+			\item
+              Evaluated two different network topologies (flooding and
+              mesh) and chose mesh for our application. The mesh
+              module was modified to work better with our application.
+			\item
+              Evaluated two different sensors for presence sensing,
+              found that the IR sensor was more useful than the light
+              sensor.
+			\item
+              Implemented our node software on top of the Contiki OS.
+			\item
+              Implemented a simple but efficient application message
+              protocol.
+			\item
+              Implemented a simple PC-based backend and frontend that
+              also controls the home automation equipment.
 
-	\begin{block}
-		
-		Glue code.
+		\end{itemize}
 
 	\end{block}
 
@@ -320,7 +303,7 @@ Implement data manager and web interface for data presentation.
 \begin{thebibliography}{10} 
 
 \bibitem{rime}
-An Adaptive Communication Architecture for Wireless Sensor Networks
+An Adaptive Communication Architecture for Wireless Sensor Networks.
 \newblock Adam Dunkels, Fredrik Österlind, Zhitao He
 
 \bibitem{z1}
