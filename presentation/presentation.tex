@@ -213,12 +213,12 @@
 \end{frame}
 
 \begin{frame}
-\frametitle{Sensor evaluation}
+\frametitle{Behaviour}
 
 	\begin{center}
 		\begin{figure}
 			\includegraphics[width=\textwidth]{sensor.eps}
-			\caption{Sensor heuristics.}
+			\caption{Packet timeline.}
 		\end{figure}
 	\end{center}
 
@@ -266,24 +266,25 @@
 	\begin{block}
 		
 		\begin{itemize}\setlength{\itemsep}{4mm}
-
 			\item
-              Evaluated two different network topologies (flooding and
-              mesh) and chose mesh for our application. The mesh
-              module was modified to work better with our application.
+              Evaluated two different network topologies:
+			  \begin{itemize}
+					\item Netflood
+					\item Mesh
+			  \end{itemize}
 			\item
-              Evaluated two different sensors for presence sensing,
-              found that the IR sensor was more useful than the light
-              sensor.
+              Evaluated two different sensors for presence sensing:
+			  \begin{itemize}
+					\item IR motion sensor
+					\item High precision light sensor
+			  \end{itemize}
 			\item
-              Implemented our node software on top of the Contiki OS.
+              Implemented our mote software on top of Contiki OS.
 			\item
-              Implemented a simple but efficient application message
-              protocol.
+              Implemented a simple application message protocol.
 			\item
-              Implemented a simple PC-based backend and frontend that
-              also controls the home automation equipment.
-
+              Implemented a PC-based backend and frontend that can control home
+			  automation equipment.
 		\end{itemize}
 
 	\end{block}
@@ -292,8 +293,6 @@
 
 \begin{frame}
 \frametitle{DEMO}
-	
-	DEMO
 	
 \end{frame}
 
