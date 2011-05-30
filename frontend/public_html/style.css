@@ -68,7 +68,7 @@ h1
 	padding-right: 0.75em;
 }
 
-.rssi
+.rssi, .hops
 {
 	width: 2em;
 	display: inline-block;
