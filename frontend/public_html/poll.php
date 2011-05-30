@@ -42,6 +42,7 @@ if (count($rows) > 0)
 
 				array('span', 'class' => 'time', date('Y-m-d H:i:s', $row['time'])),
 				array('span', 'class' => 'rssi', $row['rssi']),
+				array('span', 'class' => 'hops', $row['hops']),
 				array('span', 'Room is ' . ($row['value'] ? 'occupied' : 'empty'))
 			);
 
